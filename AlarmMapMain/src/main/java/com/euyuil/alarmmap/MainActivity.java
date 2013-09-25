@@ -1,11 +1,12 @@
 package com.euyuil.alarmmap;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +22,7 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_settings:
                 // TODO Settings
+                startActivity(new Intent(this, EditAlarmActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
