@@ -18,8 +18,9 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + AlarmEntry.TABLE_NAME + " (" +
             AlarmEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE + " BOOLEAN NOT NULL DEFAULT 0, " +
             AlarmEntry.COLUMN_NAME_ALARM_TITLE + " TEXT, " +
-            AlarmEntry.COLUMN_NAME_ALARM_TIME + " NUMERIC, " +
+            AlarmEntry.COLUMN_NAME_ALARM_TIME + " DATETIME, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +

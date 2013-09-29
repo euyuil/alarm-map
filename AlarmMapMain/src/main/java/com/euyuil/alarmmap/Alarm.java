@@ -18,6 +18,7 @@ public class Alarm {
 
     private Long id;
     private String title;
+    private Boolean available;
     private Date alarmTime;
     private Location alarmLocation;
     private Double alarmLocationRadius; // TODO Integrate this.
@@ -34,24 +35,8 @@ public class Alarm {
                 AlarmEntry.PROJECTION_ALARM_DETAILS, AlarmEntry._ID + " = ?",
                 new String[] { id.toString() }, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
-
-            Alarm alarm = new Alarm();
-
-            alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
-            alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
-            alarm.setAlarmTime(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME))));
-
-            Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
-            alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
-            alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
-            alarm.setAlarmLocation(alarmLocation);
-
-            alarm.setAlarmLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
-            alarm.setAlarmDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
-
-            return alarm;
-        }
+        if (cursor != null && cursor.moveToFirst())
+            return fromCursorCurrentPos(cursor);
 
         return null;
     }
@@ -64,22 +49,7 @@ public class Alarm {
 
     public boolean insert(Context context) {
 
-        ContentValues values = new ContentValues();
-
-        values.put(AlarmEntry.COLUMN_NAME_ALARM_TITLE, getTitle());
-
-        if (getAlarmTime() != null)
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME, getAlarmTime().getTime());
-
-        if (getAlarmLocation() != null) {
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getAlarmLocation().getLatitude());
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE, getAlarmLocation().getLongitude());
-        }
-
-        values.put(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK, getAlarmDayOfWeek());
-
-        Uri uri = context.getContentResolver().insert(
-                Uri.parse("content://com.euyuil.alarmmap.provider/alarm"), values);
+        Uri uri = context.getContentResolver().insert(getClassUri(), getContentValues());
 
         if (uri == null)
             return false;
@@ -94,13 +64,59 @@ public class Alarm {
     }
 
     public boolean delete(Context context) {
-        // TODO
-        return false;
+        return context.getContentResolver().delete(getUri(), null, null) > 0;
     }
 
     public boolean update(Context context) {
-        // TODO
-        return false;
+        return context.getContentResolver().update(getUri(), getContentValues(), null, null) > 0;
+    }
+
+    private static Alarm fromCursorCurrentPos(Cursor cursor) {
+
+        Alarm alarm = new Alarm();
+
+        alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
+        alarm.setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
+        alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
+        alarm.setAlarmTime(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME))));
+
+        Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
+        alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
+        alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
+        alarm.setAlarmLocation(alarmLocation);
+
+        alarm.setAlarmLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
+        alarm.setAlarmDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
+
+        return alarm;
+    }
+
+    private ContentValues getContentValues() {
+
+        ContentValues values = new ContentValues();
+
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE, getAvailable() != null && getAvailable());
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_TITLE, getTitle());
+
+        if (getAlarmTime() != null)
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME, getAlarmTime().getTime());
+
+        if (getAlarmLocation() != null) {
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getAlarmLocation().getLatitude());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE, getAlarmLocation().getLongitude());
+        }
+
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK, getAlarmDayOfWeek());
+
+        return values;
+    }
+
+    public static Uri getClassUri() {
+        return Uri.parse("content://com.euyuil.alarmmap.provider/alarm");
+    }
+
+    public Uri getUri() {
+        return Uri.parse("content://com.euyuil.alarmmap.provider/alarm/" + getId().toString());
     }
 
     public boolean getAlarmDayOfWeek(Weekday weekday) {
@@ -122,6 +138,14 @@ public class Alarm {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 
     public Integer getAlarmDayOfWeek() {

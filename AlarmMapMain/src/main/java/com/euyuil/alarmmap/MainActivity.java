@@ -21,11 +21,9 @@ public class MainActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_alarm:
-                // TODO Add alarm
                 Alarm alarm = new Alarm();
                 alarm.setAlarmTime(new Date());
                 alarm.insert(this);
-                Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_settings:
                 // TODO Settings
