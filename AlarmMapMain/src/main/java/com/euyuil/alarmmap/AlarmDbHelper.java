@@ -17,12 +17,13 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + AlarmEntry.TABLE_NAME + " (" +
-            AlarmEntry._ID + " LONG PRIMARY KEY NOT NULL, " +
-            AlarmEntry.COLUMN_NAME_ENTRY_TITLE + " TEXT, " +
-            AlarmEntry.COLUMN_NAME_ENTRY_ALARM_TIME + " TIME, " +
-            AlarmEntry.COLUMN_NAME_ENTRY_ALARM_LOCATION_LATITUDE + " LONG, " +
-            AlarmEntry.COLUMN_NAME_ENTRY_ALARM_LOCATION_LONGITUDE + " LONG, " +
-            AlarmEntry.COLUMN_NAME_ENTRY_ALARM_DAY_OF_WEEK + " INTEGER" +
+            AlarmEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            AlarmEntry.COLUMN_NAME_ALARM_TITLE + " TEXT, " +
+            AlarmEntry.COLUMN_NAME_ALARM_TIME + " NUMERIC, " +
+            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
+            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
+            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +
+            AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK + " INTEGER" +
             " )";
 
     private static final String SQL_DELETE_ENTRIES =

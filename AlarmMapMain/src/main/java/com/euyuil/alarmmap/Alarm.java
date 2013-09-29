@@ -2,11 +2,11 @@ package com.euyuil.alarmmap;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 
 import java.util.Date;
-import java.util.List;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
@@ -20,46 +20,77 @@ public class Alarm {
     private String title;
     private Date alarmTime;
     private Location alarmLocation;
+    private Double alarmLocationRadius; // TODO Integrate this.
     private Integer alarmDayOfWeek;
 
     public enum Weekday {
         SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
     }
 
-    public static Alarm findById(Long id) {
-        // TODO
+    public static Alarm findById(Context context, Long id) {
+
+        Cursor cursor = context.getContentResolver().query(
+                Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
+                AlarmEntry.PROJECTION_ALARM_DETAILS, AlarmEntry._ID + " = ?",
+                new String[] { id.toString() }, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            Alarm alarm = new Alarm();
+
+            alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
+            alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
+            alarm.setAlarmTime(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME))));
+
+            Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
+            alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
+            alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
+            alarm.setAlarmLocation(alarmLocation);
+
+            alarm.setAlarmLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
+            alarm.setAlarmDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
+
+            return alarm;
+        }
+
         return null;
     }
 
-    public static List<Alarm> findAll() {
-        // TODO
-        return null;
+    public static Cursor findAll(Context context) {
+        return context.getContentResolver().query(
+                Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
+                AlarmEntry.PROJECTION_ALARM_DETAILS, null, null, null);
     }
 
     public boolean insert(Context context) {
 
-        SQLiteDatabase db = new AlarmDbHelper(context).getWritableDatabase();
-
-        if (db == null)
-            return false;
-
         ContentValues values = new ContentValues();
 
-        values.put(AlarmEntry.COLUMN_NAME_ENTRY_TITLE, getTitle());
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_TITLE, getTitle());
 
         if (getAlarmTime() != null)
-            values.put(AlarmEntry.COLUMN_NAME_ENTRY_ALARM_TIME, getAlarmTime().getTime());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME, getAlarmTime().getTime());
 
         if (getAlarmLocation() != null) {
-            values.put(AlarmEntry.COLUMN_NAME_ENTRY_ALARM_LOCATION_LATITUDE, getAlarmLocation().getLatitude());
-            values.put(AlarmEntry.COLUMN_NAME_ENTRY_ALARM_LOCATION_LONGITUDE, getAlarmLocation().getLongitude());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getAlarmLocation().getLatitude());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE, getAlarmLocation().getLongitude());
         }
 
-        values.put(AlarmEntry.COLUMN_NAME_ENTRY_ALARM_DAY_OF_WEEK, getAlarmDayOfWeek());
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK, getAlarmDayOfWeek());
 
-        id = db.insert(AlarmEntry.TABLE_NAME, AlarmEntry.COLUMN_NAME_NULLABLE, values);
+        Uri uri = context.getContentResolver().insert(
+                Uri.parse("content://com.euyuil.alarmmap.provider/alarm"), values);
 
-        return true;
+        if (uri == null)
+            return false;
+
+        try {
+            id = Long.parseLong(uri.getLastPathSegment());
+        } catch (NumberFormatException nfe) {
+            id = null;
+        }
+
+        return id != null;
     }
 
     public boolean delete(Context context) {
@@ -123,5 +154,13 @@ public class Alarm {
 
     public void setAlarmLocation(Location alarmLocation) {
         this.alarmLocation = alarmLocation;
+    }
+
+    public Double getAlarmLocationRadius() {
+        return alarmLocationRadius;
+    }
+
+    public void setAlarmLocationRadius(Double alarmLocationRadius) {
+        this.alarmLocationRadius = alarmLocationRadius;
     }
 }

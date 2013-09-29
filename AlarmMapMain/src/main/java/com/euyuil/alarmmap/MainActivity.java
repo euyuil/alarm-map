@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.util.Date;
 
 public class MainActivity extends FragmentActivity {
 
@@ -19,6 +22,10 @@ public class MainActivity extends FragmentActivity {
         switch (item.getItemId()) {
             case R.id.action_add_alarm:
                 // TODO Add alarm
+                Alarm alarm = new Alarm();
+                alarm.setAlarmTime(new Date());
+                alarm.insert(this);
+                Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_settings:
                 // TODO Settings

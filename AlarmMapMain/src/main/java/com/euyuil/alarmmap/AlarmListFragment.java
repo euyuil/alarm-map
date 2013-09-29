@@ -1,18 +1,22 @@
 package com.euyuil.alarmmap;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
-public class AlarmListFragment extends ListFragment {
+public class AlarmListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+
+    SimpleCursorAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -23,16 +27,35 @@ public class AlarmListFragment extends ListFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setListAdapter(new SimpleAdapter(getActivity(), getData(), R.layout.list_item_alarm,
-                new String[]{"title"}, new int[]{R.id.textView}));
+
+        adapter = new SimpleCursorAdapter(getActivity(), R.layout.list_item_alarm, null,
+                new String[] {
+                        AlarmContract.AlarmEntry.COLUMN_NAME_ALARM_TITLE
+                }, new int[] {
+                        R.id.textView
+                }, 0);
+
+        setListAdapter(adapter);
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
-    private List<Map<String, Object>> getData() {
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        list.add(new HashMap<String, Object>() {{ this.put("title", "haha"); }});
-        list.add(new HashMap<String, Object>() {{ this.put("title", "hbhb"); }});
-        list.add(new HashMap<String, Object>() {{ this.put("title", "hchc"); }});
-        return list;
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(getActivity(),
+                Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
+                AlarmEntry.PROJECTION_ALARM_DETAILS, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        adapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        adapter.swapCursor(null);
     }
 }
