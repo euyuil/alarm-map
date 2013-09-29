@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import java.util.Date;
 
@@ -22,7 +21,7 @@ public class MainActivity extends FragmentActivity {
         switch (item.getItemId()) {
             case R.id.action_add_alarm:
                 Alarm alarm = new Alarm();
-                alarm.setAlarmTime(new Date());
+                alarm.setTimeOfDay(new Date());
                 alarm.insert(this);
                 return true;
             case R.id.action_settings:

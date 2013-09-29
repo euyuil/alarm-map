@@ -11,18 +11,34 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
 public class AlarmListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
-    SimpleCursorAdapter adapter;
+    AlarmListAdapter adapter;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getListView().setClickable(true);
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+        getListView().setLongClickable(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_alarm_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_alarm_list, container, false);
+        return view;
     }
 
     @Override
@@ -30,12 +46,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
 
         super.onCreate(savedInstanceState);
 
-        adapter = new SimpleCursorAdapter(getActivity(), R.layout.list_item_alarm, null,
-                new String[] {
-                        AlarmContract.AlarmEntry.COLUMN_NAME_ALARM_TITLE
-                }, new int[] {
-                        R.id.textView
-                }, 0);
+        adapter = new AlarmListAdapter(getActivity());
 
         setListAdapter(adapter);
 

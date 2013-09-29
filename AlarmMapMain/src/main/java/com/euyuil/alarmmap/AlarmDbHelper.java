@@ -20,7 +20,7 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             AlarmEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
             AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE + " BOOLEAN NOT NULL DEFAULT 0, " +
             AlarmEntry.COLUMN_NAME_ALARM_TITLE + " TEXT, " +
-            AlarmEntry.COLUMN_NAME_ALARM_TIME + " DATETIME, " +
+            AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY + " DATETIME, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +

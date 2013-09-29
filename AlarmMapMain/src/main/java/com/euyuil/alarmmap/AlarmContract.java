@@ -17,11 +17,14 @@ public final class AlarmContract {
 
         public static final String COLUMN_NAME_ALARM_AVAILABLE = "available";
         public static final String COLUMN_NAME_ALARM_TITLE = "title";
-        public static final String COLUMN_NAME_ALARM_TIME = "time_of_day";
+        public static final String COLUMN_NAME_ALARM_TIME_OF_DAY = "time_of_day";
         public static final String COLUMN_NAME_ALARM_LOCATION_LATITUDE = "location_latitude";
         public static final String COLUMN_NAME_ALARM_LOCATION_LONGITUDE = "location_longitude";
         public static final String COLUMN_NAME_ALARM_LOCATION_RADIUS = "location_radius";
         public static final String COLUMN_NAME_ALARM_DAY_OF_WEEK = "day_of_week";
+        public static final String COLUMN_NAME_ALARM_LOCATION_ADDRESS = "location_address";
+        public static final String COLUMN_NAME_ALARM_RINGTONE = "ringtone";
+        public static final String COLUMN_NAME_ALARM_REPEAT = "repeat";
 
         public static final String COLUMN_NAME_NULLABLE = COLUMN_NAME_ALARM_TITLE;
 
@@ -29,7 +32,7 @@ public final class AlarmContract {
                 _ID,
                 COLUMN_NAME_ALARM_AVAILABLE,
                 COLUMN_NAME_ALARM_TITLE,
-                COLUMN_NAME_ALARM_TIME,
+                COLUMN_NAME_ALARM_TIME_OF_DAY,
                 COLUMN_NAME_ALARM_LOCATION_LATITUDE,
                 COLUMN_NAME_ALARM_LOCATION_LONGITUDE,
                 COLUMN_NAME_ALARM_LOCATION_RADIUS,

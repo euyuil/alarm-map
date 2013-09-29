@@ -19,10 +19,10 @@ public class Alarm {
     private Long id;
     private String title;
     private Boolean available;
-    private Date alarmTime;
-    private Location alarmLocation;
-    private Double alarmLocationRadius; // TODO Integrate this.
-    private Integer alarmDayOfWeek;
+    private Date timeOfDay;
+    private Location location;
+    private Double locationRadius; // TODO Integrate this.
+    private Integer dayOfWeek;
 
     public enum Weekday {
         SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
@@ -36,7 +36,7 @@ public class Alarm {
                 new String[] { id.toString() }, null);
 
         if (cursor != null && cursor.moveToFirst())
-            return fromCursorCurrentPos(cursor);
+            return fromCursor(cursor);
 
         return null;
     }
@@ -71,42 +71,42 @@ public class Alarm {
         return context.getContentResolver().update(getUri(), getContentValues(), null, null) > 0;
     }
 
-    private static Alarm fromCursorCurrentPos(Cursor cursor) {
+    public static Alarm fromCursor(Cursor cursor) {
 
         Alarm alarm = new Alarm();
 
         alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
         alarm.setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
         alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
-        alarm.setAlarmTime(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME))));
+        alarm.setTimeOfDay(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
 
         Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
         alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
         alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
-        alarm.setAlarmLocation(alarmLocation);
+        alarm.setLocation(alarmLocation);
 
-        alarm.setAlarmLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
-        alarm.setAlarmDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
+        alarm.setLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
+        alarm.setDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
 
         return alarm;
     }
 
-    private ContentValues getContentValues() {
+    public ContentValues getContentValues() {
 
         ContentValues values = new ContentValues();
 
         values.put(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE, getAvailable() != null && getAvailable());
         values.put(AlarmEntry.COLUMN_NAME_ALARM_TITLE, getTitle());
 
-        if (getAlarmTime() != null)
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME, getAlarmTime().getTime());
+        if (getTimeOfDay() != null)
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY, getTimeOfDay().getTime());
 
-        if (getAlarmLocation() != null) {
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getAlarmLocation().getLatitude());
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE, getAlarmLocation().getLongitude());
+        if (getLocation() != null) {
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getLocation().getLatitude());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE, getLocation().getLongitude());
         }
 
-        values.put(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK, getAlarmDayOfWeek());
+        values.put(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK, getDayOfWeek());
 
         return values;
     }
@@ -120,16 +120,16 @@ public class Alarm {
     }
 
     public boolean getAlarmDayOfWeek(Weekday weekday) {
-        return alarmDayOfWeek != null && (alarmDayOfWeek & (1 << weekday.ordinal())) != 0;
+        return dayOfWeek != null && (dayOfWeek & (1 << weekday.ordinal())) != 0;
     }
 
     public void setAlarmDayOfWeek(Weekday weekday, boolean flag) {
-        if (alarmDayOfWeek == null)
-            alarmDayOfWeek = 0;
+        if (dayOfWeek == null)
+            dayOfWeek = 0;
         if (flag)
-            alarmDayOfWeek = alarmDayOfWeek | (1 << weekday.ordinal());
+            dayOfWeek = dayOfWeek | (1 << weekday.ordinal());
         else
-            alarmDayOfWeek = alarmDayOfWeek & ~(1 << weekday.ordinal());
+            dayOfWeek = dayOfWeek & ~(1 << weekday.ordinal());
     }
 
     public Long getId() {
@@ -148,12 +148,12 @@ public class Alarm {
         this.available = available;
     }
 
-    public Integer getAlarmDayOfWeek() {
-        return alarmDayOfWeek;
+    public Integer getDayOfWeek() {
+        return dayOfWeek;
     }
 
-    public void setAlarmDayOfWeek(Integer alarmDayOfWeek) {
-        this.alarmDayOfWeek = alarmDayOfWeek;
+    public void setDayOfWeek(Integer dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 
     public String getTitle() {
@@ -164,27 +164,27 @@ public class Alarm {
         this.title = title;
     }
 
-    public Date getAlarmTime() {
-        return alarmTime;
+    public Date getTimeOfDay() {
+        return timeOfDay;
     }
 
-    public void setAlarmTime(Date alarmTime) {
-        this.alarmTime = alarmTime;
+    public void setTimeOfDay(Date timeOfDay) {
+        this.timeOfDay = timeOfDay;
     }
 
-    public Location getAlarmLocation() {
-        return alarmLocation;
+    public Location getLocation() {
+        return location;
     }
 
-    public void setAlarmLocation(Location alarmLocation) {
-        this.alarmLocation = alarmLocation;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
-    public Double getAlarmLocationRadius() {
-        return alarmLocationRadius;
+    public Double getLocationRadius() {
+        return locationRadius;
     }
 
-    public void setAlarmLocationRadius(Double alarmLocationRadius) {
-        this.alarmLocationRadius = alarmLocationRadius;
+    public void setLocationRadius(Double locationRadius) {
+        this.locationRadius = locationRadius;
     }
 }
