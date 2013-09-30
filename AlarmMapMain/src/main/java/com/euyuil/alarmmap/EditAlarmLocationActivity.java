@@ -8,12 +8,13 @@ import android.widget.Toast;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 
-public class EditAlarmActivity extends FragmentActivity {
+public class EditAlarmLocationActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_alarm);
+        setContentView(R.layout.activity_edit_alarm_location);
+        Toast.makeText(this, String.valueOf(getIntent().getLongExtra("alarm", 0)), Toast.LENGTH_SHORT).show();
     }
 
     private GoogleMap googleMap;

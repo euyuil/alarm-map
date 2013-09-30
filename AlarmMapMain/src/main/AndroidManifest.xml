@@ -38,14 +38,13 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.euyuil.alarmmap.EditAlarmActivity"
-            android:label="@string/title_activity_edit_alarm"
-            android:theme="@android:style/Theme.Dialog" >
+            android:name=".EditAlarmLocationActivity"
+            android:label="@string/title_activity_edit_alarm_location"
+            android:theme="@style/AppTheme" >
         </activity>
     </application>
 

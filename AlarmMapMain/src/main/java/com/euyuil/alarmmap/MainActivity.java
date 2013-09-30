@@ -26,7 +26,6 @@ public class MainActivity extends FragmentActivity {
                 return true;
             case R.id.action_settings:
                 // TODO Settings
-                startActivity(new Intent(this, EditAlarmActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -1,5 +1,6 @@
 package com.euyuil.alarmmap;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,12 +8,10 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
@@ -27,10 +26,21 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), EditAlarmLocationActivity.class);
+                intent.putExtra("alarm", id);
+                startActivity(intent);
             }
         });
         getListView().setLongClickable(true);
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Alarm alarm = Alarm.findById(getActivity(), id);
+                if (alarm != null)
+                    alarm.delete(getActivity());
+                return true;
+            }
+        });
     }
 
     @Override
