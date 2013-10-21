@@ -12,18 +12,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
+import de.timroes.android.listview.EnhancedListView;
+
 public class AlarmListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
-    AlarmListAdapter adapter;
+    EnhancedListView listView;
+    AlarmListAdapter listAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+
         super.onActivityCreated(savedInstanceState);
-        getListView().setClickable(true);
-        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        listView = (EnhancedListView) getListView();
+
+        listView.setClickable(true);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), EditAlarmLocationActivity.class);
@@ -31,8 +40,10 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
                 startActivity(intent);
             }
         });
-        getListView().setLongClickable(true);
-        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+        listView.setLongClickable(true);
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Alarm alarm = Alarm.findById(getActivity(), id);
@@ -41,6 +52,24 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
                 return true;
             }
         });
+
+        listView.setDismissCallback(new EnhancedListView.OnDismissCallback() {
+            @Override
+            public EnhancedListView.Undoable onDismiss(EnhancedListView enhancedListView, int i) {
+                long id = listAdapter.getItemId(i);
+                final Alarm alarm = Alarm.findById(getActivity(), id);
+                if (alarm != null)
+                    alarm.delete(getActivity());
+                return new EnhancedListView.Undoable() {
+                    @Override
+                    public void undo() {
+                        alarm.insert(getActivity());
+                    }
+                };
+            }
+        });
+
+        listView.enableSwipeToDismiss();
     }
 
     @Override
@@ -56,9 +85,9 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
 
         super.onCreate(savedInstanceState);
 
-        adapter = new AlarmListAdapter(getActivity());
+        listAdapter = new AlarmListAdapter(getActivity());
 
-        setListAdapter(adapter);
+        setListAdapter(listAdapter);
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -72,11 +101,11 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        adapter.swapCursor(cursor);
+        listAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        adapter.swapCursor(null);
+        listAdapter.swapCursor(null);
     }
 }
