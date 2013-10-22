@@ -11,7 +11,9 @@ import java.util.Date;
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
 /**
- * Created by Yue on 13-9-27.
+ * The model for Alarm object.
+ * @author EUYUIL
+ * @version 0.0.20130927
  */
 
 public class Alarm {
@@ -22,7 +24,10 @@ public class Alarm {
     private Date timeOfDay;
     private Location location;
     private Double locationRadius; // TODO Integrate this.
+    private String locationAddress;
     private Integer dayOfWeek;
+    private Boolean repeat;
+    private String ringtone;
 
     public enum Weekday {
         SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
@@ -33,7 +38,7 @@ public class Alarm {
         Cursor cursor = context.getContentResolver().query(
                 Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
                 AlarmEntry.PROJECTION_ALARM_DETAILS, AlarmEntry._ID + " = ?",
-                new String[] { id.toString() }, null);
+                new String[]{id.toString()}, null);
 
         if (cursor != null && cursor.moveToFirst())
             return fromCursor(cursor);
@@ -148,14 +153,6 @@ public class Alarm {
         this.available = available;
     }
 
-    public Integer getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public void setDayOfWeek(Integer dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -186,5 +183,37 @@ public class Alarm {
 
     public void setLocationRadius(Double locationRadius) {
         this.locationRadius = locationRadius;
+    }
+
+    public String getLocationAddress() {
+        return locationAddress;
+    }
+
+    public void setLocationAddress(String locationAddress) {
+        this.locationAddress = locationAddress;
+    }
+
+    public Integer getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(Integer dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public Boolean getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(Boolean repeat) {
+        this.repeat = repeat;
+    }
+
+    public String getRingtone() {
+        return ringtone;
+    }
+
+    public void setRingtone(String ringtone) {
+        this.ringtone = ringtone;
     }
 }

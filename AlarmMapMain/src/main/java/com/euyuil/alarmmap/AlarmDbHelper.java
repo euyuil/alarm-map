@@ -24,7 +24,10 @@ public class AlarmDbHelper extends SQLiteOpenHelper {
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
             AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +
-            AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK + " INTEGER" +
+            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_ADDRESS + " TEXT, " +
+            AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK + " INTEGER, " +
+            AlarmEntry.COLUMN_NAME_ALARM_REPEAT + " BOOLEAN NOT NULL DEFAULT 0, " +
+            AlarmEntry.COLUMN_NAME_ALARM_RINGTONE + " TEXT" +
             " )";
 
     private static final String SQL_DELETE_ENTRIES =
