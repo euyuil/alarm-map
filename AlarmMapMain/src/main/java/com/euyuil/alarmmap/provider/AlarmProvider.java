@@ -2,18 +2,20 @@ package com.euyuil.alarmmap.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.AlarmContract;
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 import com.euyuil.alarmmap.AlarmDbHelper;
 
 /**
- * Created by Yue on 13-9-29.
+ * Provides alarm entities.
+ * @author EUYUIL
+ * @version 0.0.20130929
  */
 
 public class AlarmProvider extends ContentProvider {
@@ -64,7 +66,12 @@ public class AlarmProvider extends ContentProvider {
         if (cursor == null)
             return null;
 
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        Context context = getContext();
+
+        if (context == null)
+            return null;
+
+        cursor.setNotificationUri(context.getContentResolver(), uri);
 
         return cursor;
     }
@@ -97,7 +104,12 @@ public class AlarmProvider extends ContentProvider {
                 if (id <= 0)
                     return null;
 
-                getContext().getContentResolver().notifyChange(uri, null);
+                Context context = getContext();
+
+                if (context == null)
+                    return null;
+
+                context.getContentResolver().notifyChange(uri, null);
 
                 return Uri.parse("content://com.euyuil.alarmmap.provider/" + id);
         }
@@ -124,10 +136,15 @@ public class AlarmProvider extends ContentProvider {
         if (db == null)
             return 0;
 
+        Context context = getContext();
+
+        if (context == null)
+            return 0;
+
         int ret = db.delete(AlarmEntry.TABLE_NAME, selection, selectionArgs);
 
         if (ret > 0)
-            getContext().getContentResolver().notifyChange(uri, null);
+            context.getContentResolver().notifyChange(uri, null);
 
         return ret;
     }
@@ -151,10 +168,15 @@ public class AlarmProvider extends ContentProvider {
         if (db == null)
             return 0;
 
+        Context context = getContext();
+
+        if (context == null)
+            return 0;
+
         int ret = db.update(AlarmEntry.TABLE_NAME, values, selection, selectionArgs);
 
         if (ret > 0)
-            getContext().getContentResolver().notifyChange(uri, null);
+            context.getContentResolver().notifyChange(uri, null);
 
         return ret;
     }

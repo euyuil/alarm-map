@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
@@ -63,7 +62,8 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
                 return new EnhancedListView.Undoable() {
                     @Override
                     public void undo() {
-                        alarm.insert(getActivity());
+                        if (alarm != null)
+                            alarm.insert(getActivity());
                     }
                 };
             }
@@ -76,8 +76,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_alarm_list, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_alarm_list, container, false);
     }
 
     @Override

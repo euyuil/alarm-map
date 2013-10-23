@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 
 /**
- * Created by Yue on 13-9-27.
+ * Alarm database helper.
+ * @author EUYUIL
+ * @version 0.0.20130927
  */
 
 public class AlarmDbHelper extends SQLiteOpenHelper {

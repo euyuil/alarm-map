@@ -15,7 +15,9 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 
 /**
- * Created by Yue on 13-9-29.
+ * List view adapter for alarm entities.
+ * @author EUYUIL
+ * @version 0.0.20130929
  */
 
 public class AlarmListAdapter extends CursorAdapter {

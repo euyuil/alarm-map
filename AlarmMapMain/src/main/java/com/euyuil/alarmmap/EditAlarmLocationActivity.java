@@ -31,6 +31,7 @@ public class EditAlarmLocationActivity extends FragmentActivity {
                 googleMap = ((SupportMapFragment)
                         getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             } catch (Exception e) {
+                e.printStackTrace();
             }
             if (googleMap == null) {
                 Toast.makeText(this, "Unable to show Google Maps.", Toast.LENGTH_LONG).show();
