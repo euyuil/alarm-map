@@ -78,11 +78,15 @@ public class AlarmProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
+
         switch (matcher.match(uri)) {
+
             case ALARM:
                 return "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
+
             case ALARM_ID:
                 return "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
+
             default:
                 return null;
         }
@@ -92,6 +96,7 @@ public class AlarmProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
 
         switch (matcher.match(uri)) {
+
             case ALARM:
 
                 SQLiteDatabase db = alarmDbHelper.getWritableDatabase();
@@ -99,14 +104,14 @@ public class AlarmProvider extends ContentProvider {
                 if (db == null)
                     return null;
 
-                long id = db.insert(AlarmEntry.TABLE_NAME, AlarmEntry.COLUMN_NAME_NULLABLE, values);
-
-                if (id <= 0)
-                    return null;
-
                 Context context = getContext();
 
                 if (context == null)
+                    return null;
+
+                long id = db.insert(AlarmEntry.TABLE_NAME, AlarmEntry.COLUMN_NAME_NULLABLE, values);
+
+                if (id <= 0)
                     return null;
 
                 context.getContentResolver().notifyChange(uri, null);
@@ -121,12 +126,15 @@ public class AlarmProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
         switch (matcher.match(uri)) {
+
             case ALARM:
                 break;
+
             case ALARM_ID:
                 selection = AlarmEntry._ID + " = ?";
                 selectionArgs = new String[] { uri.getLastPathSegment() };
                 break;
+
             default:
                 return 0;
         }
@@ -153,12 +161,15 @@ public class AlarmProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
         switch (matcher.match(uri)) {
+
             case ALARM:
                 break;
+
             case ALARM_ID:
                 selection = AlarmEntry._ID + " = ?";
                 selectionArgs = new String[] { uri.getLastPathSegment() };
                 break;
+
             default:
                 return 0;
         }

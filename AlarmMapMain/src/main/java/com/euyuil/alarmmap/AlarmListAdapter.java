@@ -1,7 +1,8 @@
 package com.euyuil.alarmmap;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -11,8 +12,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 
 /**
  * List view adapter for alarm entities.
@@ -22,7 +26,7 @@ import java.text.SimpleDateFormat;
 
 public class AlarmListAdapter extends CursorAdapter {
 
-    LayoutInflater inflater;
+    private final LayoutInflater inflater;
 
     public AlarmListAdapter(Context context) {
         super(context, null, 0);
@@ -54,10 +58,29 @@ public class AlarmListAdapter extends CursorAdapter {
         timeOfDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog dialog = new Dialog(context);
-                dialog.setContentView(R.layout.dialog_edit_alarm_time_of_day);
-                dialog.setTitle(context.getString(R.string.title_activity_edit_alarm_time_of_day));
-                dialog.show();
+                final View dialogView = inflater.inflate(R.layout.dialog_edit_alarm_time_of_day, null);
+                new AlertDialog.Builder(context)
+                        .setView(dialogView)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show();
+                                TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
+                                GregorianCalendar calendar = new GregorianCalendar();
+                                calendar.set(GregorianCalendar.HOUR_OF_DAY, timePicker.getCurrentHour());
+                                calendar.set(GregorianCalendar.MINUTE, timePicker.getCurrentMinute());
+                                alarm.setTimeOfDay(calendar.getTime());
+                                alarm.update(context);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .create()
+                        .show();
             }
         });
 

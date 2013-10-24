@@ -7,7 +7,7 @@ import android.location.Location;
 import android.net.Uri;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
-import com.euyuil.alarmmap.utility.AlarmUtility;
+import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
 import java.util.Date;
 
@@ -78,7 +78,7 @@ public class Alarm {
         }
 
         if (id != null) {
-            AlarmUtility.register(context, this);
+            AlarmRegisterUtility.register(context, this);
             return true;
         }
 
@@ -86,12 +86,12 @@ public class Alarm {
     }
 
     public boolean delete(Context context) {
-        AlarmUtility.unregister(context, this); // TODO Move those to content provider?
+        AlarmRegisterUtility.unregister(context, this); // TODO Move those to service.
         return context.getContentResolver().delete(getUri(), null, null) > 0;
     }
 
     public boolean update(Context context) {
-        AlarmUtility.register(context, this);
+        AlarmRegisterUtility.register(context, this);
         return context.getContentResolver().update(getUri(), getContentValues(), null, null) > 0;
     }
 
@@ -158,9 +158,9 @@ public class Alarm {
         if (dayOfWeek == null)
             dayOfWeek = 0;
         if (flag)
-            dayOfWeek = dayOfWeek | (1 << weekday.ordinal());
+            setDayOfWeek(dayOfWeek | (1 << weekday.ordinal()));
         else
-            dayOfWeek = dayOfWeek & ~(1 << weekday.ordinal());
+            setDayOfWeek(dayOfWeek & ~(1 << weekday.ordinal()));
     }
 
     public Long getId() {
@@ -224,11 +224,13 @@ public class Alarm {
     }
 
     public void setDayOfWeek(Integer dayOfWeek) {
+        if (dayOfWeek != null && dayOfWeek != 0)
+            this.setRepeat(true);
         this.dayOfWeek = dayOfWeek;
     }
 
     public boolean getRepeat() {
-        return repeat;
+        return repeat && getDayOfWeek() != null && getDayOfWeek() != 0;
     }
 
     public void setRepeat(boolean repeat) {

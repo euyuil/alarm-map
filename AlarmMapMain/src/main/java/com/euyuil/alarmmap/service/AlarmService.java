@@ -6,7 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.euyuil.alarmmap.Alarm;
-import com.euyuil.alarmmap.utility.AlarmUtility;
+import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
+import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 
 import java.util.Date;
 
@@ -16,7 +17,7 @@ import java.util.Date;
  * @version 0.0.20131022
  */
 
-public class AlarmService extends Service {
+public class AlarmService extends Service { // TODO Register content observers.
 
     public static final String TAG = "AlarmService";
     public static final String ACTION = "com.euyuil.alarmmap.service.AlarmService";
@@ -37,10 +38,12 @@ public class AlarmService extends Service {
 
         Log.i(TAG, String.format("onStartCommand %s", intent.getData()));
 
+        Date now = new Date();
+
         Alarm alarm = Alarm.findByUri(getApplicationContext(), intent.getData());
 
-        if (AlarmUtility.clearDateButPreserveTime(alarm.getTimeOfDay()).getTime() >=
-                AlarmUtility.clearDateButPreserveTime(new Date()).getTime()) {
+        if (AlarmDateTimeUtility.clearDateButPreserveTime(alarm.getTimeOfDay()).getTime() >=
+                AlarmDateTimeUtility.clearDateButPreserveTime(new Date()).getTime()) {
 
             // Time is up, then look for repeat flag.
 
@@ -48,13 +51,19 @@ public class AlarmService extends Service {
 
                 // Alarm was set to repeat, look for weekday settings.
 
-                // TODO if alarm.weekday contains today's weekday, it will be ringing.
+                if (alarm.getDayOfWeek(AlarmDateTimeUtility.getNowWeekday(now)))
+                    ring(alarm);
 
             } else {
-
-                // TODO alarm was not set to repeat, will be ringing.
-
+                ring(alarm);
             }
+
+        } else {
+
+            // Should calculate time diff if it's larger than 1 minute then use this.
+            // Otherwise just register alarm manager manually.
+            AlarmRegisterUtility.register(getApplicationContext(), alarm);
+
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -64,5 +73,9 @@ public class AlarmService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
+    }
+
+    private void ring(Alarm alarm) {
+        Log.i(TAG, String.format("ring %s", alarm.getUri()));
     }
 }

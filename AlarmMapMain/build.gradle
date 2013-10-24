@@ -1,27 +1,55 @@
 buildscript {
-    repositories {
-        mavenCentral()
-    }
+
     dependencies {
+
+        repositories {
+
+            mavenCentral()
+            mavenLocal()
+            maven {
+
+                // TODO Avoid work-around for newer Gradle versions.
+                // https://github.com/JakeWharton/gradle-android-test-plugin/issues/3
+                url 'https://oss.sonatype.org/content/repositories/snapshots/'
+            }
+        }
+
         classpath 'com.android.tools.build:gradle:0.6.+'
+
+        // TODO Avoid work-around for newer Gradle versions.
+        // https://github.com/JakeWharton/gradle-android-test-plugin/issues/3
+        classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.1-SNAPSHOT'
     }
 }
 
 apply plugin: 'android'
-
-repositories {
-    mavenCentral()
-}
+apply plugin: 'android-test'
 
 dependencies {
+
+    repositories {
+        mavenCentral()
+    }
+
 	compile 'com.android.support:support-v4:13.0.+'
 	compile 'com.android.support:appcompat-v7:18.0.+'
 	compile 'com.google.android.gms:play-services:3.2.+'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'de.timroes.android:EnhancedListView:0.1.2@aar'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'com.squareup:fest-android:1.0.+'
+    testCompile 'org.robolectric:robolectric:2.1.+'
+
+    // TODO Avoid work-around for auto-completion.
+    // https://github.com/JakeWharton/gradle-android-test-plugin/issues/4
+    instrumentTestCompile 'junit:junit:4.11'
+    instrumentTestCompile 'com.squareup:fest-android:1.0.+'
+    instrumentTestCompile 'org.robolectric:robolectric:2.1.+'
 }
 
 android {
+
     compileSdkVersion 18
     buildToolsVersion "18.1"
 
@@ -29,4 +57,10 @@ android {
         minSdkVersion 8
         targetSdkVersion 18
     }
+
+    sourceSets {
+        instrumentTest.setRoot('src/test')
+    }
 }
+
+check.dependsOn test
