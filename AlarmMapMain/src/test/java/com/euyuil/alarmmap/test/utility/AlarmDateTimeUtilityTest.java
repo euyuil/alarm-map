@@ -65,8 +65,6 @@ public class AlarmDateTimeUtilityTest {
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.SATURDAY))
                 .isEqualTo(Alarm.Weekday.SATURDAY);
-
-
     }
 
     @Test
@@ -120,7 +118,43 @@ public class AlarmDateTimeUtilityTest {
 
     @Test
     public void testHasCorrespondingTimeTodayPassed() {
-        // TODO
+
+        GregorianCalendar calendar = new GregorianCalendar();
+
+        calendar.set(2013, GregorianCalendar.APRIL, 1, 12, 0, 0);
+
+        // Now is 12:00 .
+        Date now = calendar.getTime();
+
+        // Corresponding time is 10:00 .
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 10);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(true);
+
+        // Corresponding time is 14:00 .
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 14);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(false);
+
+        // Corresponding time is 10:00 .
+        calendar.set(2014, GregorianCalendar.APRIL, 1, 10, 0, 0);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(true);
+
+        // Corresponding time is 14:00 .
+        calendar.set(2012, GregorianCalendar.APRIL, 1, 14, 0, 0);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(false);
+
+        // Corresponding time is 10:00 .
+        calendar.set(2012, GregorianCalendar.APRIL, 1, 10, 0, 0);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(true);
+
+        // Corresponding time is 14:00 .
+        calendar.set(2014, GregorianCalendar.APRIL, 1, 14, 0, 0);
+        assertThat(AlarmDateTimeUtility
+                .hasCorrespondingTimeTodayPassed(now, calendar.getTime())).isEqualTo(false);
     }
 
     @Test
@@ -195,16 +229,97 @@ public class AlarmDateTimeUtilityTest {
         }
         assertThat(except).isEqualTo(true);
 
-        // TODO Repeat weekday includes today's, no other repeat weekday, now time is before alarm time, expect ringing today.
+        // Repeat weekday includes today's, no other repeat weekday, now time is before alarm time, expect ringing today.
 
-        // TODO Repeat weekday includes today's, no other repeat weekday, now time is after alarm time, expect ringing next week.
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 10);
 
-        // TODO Repeat weekday includes today's, now time is before alarm time, expect ringing today.
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), true);
 
-        // TODO Repeat weekday includes today's, now time is after alarm time, expect ringing next set weekday.
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(alarm.getTimeOfDay());
 
-        // TODO Repeat weekday doesn't include today's, now time is before alarm time, expect ringing next set weekday.
+        // Repeat weekday includes today's, no other repeat weekday, now time is after alarm time, expect ringing next week.
 
-        // TODO Repeat weekday doesn't include today's, now time is after alarm time, expect ringing next set weekday.
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 14);
+
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), true);
+
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
+                .getThisManyDaysAfterThatTime(7, alarm.getTimeOfDay()));
+
+        // Repeat weekday includes today's, now time is before alarm time, expect ringing today.
+
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 10);
+
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), true);
+        alarm.setDayOfWeek(Alarm.Weekday.WEDNESDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
+
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(alarm.getTimeOfDay());
+
+        // Repeat weekday includes today's, now time is after alarm time, expect ringing next set weekday.
+
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 14);
+
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), true);
+        alarm.setDayOfWeek(Alarm.Weekday.THURSDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
+
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
+                .getCorrespondingTimeOnThatFutureWeekday(
+                        calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.THURSDAY));
+
+        // Repeat weekday doesn't include today's, now time is before alarm time, expect ringing next set weekday.
+
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 10);
+
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), false);
+        alarm.setDayOfWeek(Alarm.Weekday.WEDNESDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
+
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
+                .getCorrespondingTimeOnThatFutureWeekday(
+                        calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.WEDNESDAY));
+
+        // Repeat weekday doesn't include today's, now time is after alarm time, expect ringing next set weekday.
+
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 14);
+
+        alarm.setAvailable(true);
+        alarm.setRepeat(true);
+        alarm.setDayOfWeek(0);
+        alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), false);
+        alarm.setDayOfWeek(Alarm.Weekday.THURSDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
+
+        assertThat(AlarmDateTimeUtility
+                .getNextRingingDateTimeFromRepeatAlarm(
+                        calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
+                .getCorrespondingTimeOnThatFutureWeekday(
+                        calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.THURSDAY));
     }
 }

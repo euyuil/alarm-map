@@ -22,7 +22,7 @@ public class Alarm {
     private Long id; // TODO Maybe long?
     private String title;
     private boolean available = true;
-    private Date timeOfDay;
+    private Date timeOfDay; // TODO Timezone change.
     private Location location;
     private Double locationRadius; // TODO Integrate this.
     private String locationAddress;

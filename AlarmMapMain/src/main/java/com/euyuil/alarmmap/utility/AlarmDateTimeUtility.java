@@ -57,8 +57,8 @@ public class AlarmDateTimeUtility {
 
     public static boolean hasCorrespondingTimeTodayPassed(Date now, Date date) {
         // TODO Maybe we should set one NOW.
-        return clearDateButPreserveTime(date).getTime() >=
-                clearDateButPreserveTime(now).getTime();
+        return clearDateButPreserveTime(now).getTime() >=
+                clearDateButPreserveTime(date).getTime();
     }
 
     public static Date getFirstOccurrenceOfThisTimeInTheFuture(Date now, Date date) {
@@ -70,7 +70,7 @@ public class AlarmDateTimeUtility {
     @SuppressWarnings("MagicConstant")
     public static Date getCorrespondingTimeOnThatFutureWeekday(Date now, Date date, Alarm.Weekday weekday) {
         Alarm.Weekday nowWeekday = getNowWeekday(now);
-        if (nowWeekday == weekday)
+        if (nowWeekday == weekday) // TODO Future?
             return getThatTimeOnThisDay(now, date);
         int dayDiffFromThatDayToToday = weekday.ordinal() - nowWeekday.ordinal();
         if (dayDiffFromThatDayToToday < 0)
