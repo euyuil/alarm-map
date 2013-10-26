@@ -68,12 +68,10 @@ public class AlarmDateTimeUtility {
     }
 
     @SuppressWarnings("MagicConstant")
-    public static Date getCorrespondingTimeOnThatFutureWeekday(Date now, Date date, Alarm.Weekday weekday) {
+    public static Date getCorrespondingTimeOnThatWeekdayAfterToday(Date now, Date date, Alarm.Weekday weekday) {
         Alarm.Weekday nowWeekday = getNowWeekday(now);
-        if (nowWeekday == weekday) // TODO Future?
-            return getThatTimeOnThisDay(now, date);
         int dayDiffFromThatDayToToday = weekday.ordinal() - nowWeekday.ordinal();
-        if (dayDiffFromThatDayToToday < 0)
+        if (dayDiffFromThatDayToToday <= 0)
             dayDiffFromThatDayToToday += 7;
         return getThisManyDaysAfterThatTime(dayDiffFromThatDayToToday,
                 getThatTimeOnThisDay(now, date));

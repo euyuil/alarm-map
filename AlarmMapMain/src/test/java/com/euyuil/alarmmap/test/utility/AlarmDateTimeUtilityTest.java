@@ -163,8 +163,8 @@ public class AlarmDateTimeUtilityTest {
     }
 
     @Test
-    public void testGetCorrespondingTimeOnThatFutureWeekend() {
-        // TODO
+    public void testGetCorrespondingTimeOnThatWeekdayAfterToday() {
+        // TODO Test this first.
     }
 
     @Test
@@ -285,7 +285,7 @@ public class AlarmDateTimeUtilityTest {
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(
                         calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
-                .getCorrespondingTimeOnThatFutureWeekday(
+                .getCorrespondingTimeOnThatWeekdayAfterToday(
                         calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.THURSDAY));
 
         // Repeat weekday doesn't include today's, now time is before alarm time, expect ringing next set weekday.
@@ -302,7 +302,7 @@ public class AlarmDateTimeUtilityTest {
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(
                         calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
-                .getCorrespondingTimeOnThatFutureWeekday(
+                .getCorrespondingTimeOnThatWeekdayAfterToday(
                         calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.WEDNESDAY));
 
         // Repeat weekday doesn't include today's, now time is after alarm time, expect ringing next set weekday.
@@ -319,7 +319,7 @@ public class AlarmDateTimeUtilityTest {
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(
                         calendar.getTime(), alarm)).isEqualTo(AlarmDateTimeUtility
-                .getCorrespondingTimeOnThatFutureWeekday(
+                .getCorrespondingTimeOnThatWeekdayAfterToday(
                         calendar.getTime(), alarm.getTimeOfDay(), Alarm.Weekday.THURSDAY));
     }
 }
