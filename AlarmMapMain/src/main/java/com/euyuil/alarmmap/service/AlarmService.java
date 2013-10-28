@@ -38,12 +38,15 @@ public class AlarmService extends Service { // TODO Register content observers.
 
         Log.i(TAG, String.format("onStartCommand %s", intent.getData()));
 
-        Date now = new Date();
-
         Alarm alarm = Alarm.findByUri(getApplicationContext(), intent.getData());
 
-        if (AlarmDateTimeUtility.clearDateButPreserveTime(alarm.getTimeOfDay()).getTime() >=
-                AlarmDateTimeUtility.clearDateButPreserveTime(new Date()).getTime()) {
+        Date now = new Date();
+        Date nextRingingDate = AlarmDateTimeUtility.getNextRingingDateTime(now, alarm);
+
+        if (AlarmDateTimeUtility
+                .clearDateButPreserveTime(nextRingingDate).getTime()
+                >= AlarmDateTimeUtility
+                .clearDateButPreserveTime(now).getTime()) {
 
             // Time is up, then look for repeat flag.
 

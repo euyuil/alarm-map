@@ -9,8 +9,6 @@ import android.net.Uri;
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
-import java.util.Date;
-
 /**
  * The model for Alarm object.
  * @author EUYUIL
@@ -22,17 +20,13 @@ public class Alarm {
     private Long id; // TODO Maybe long?
     private String title;
     private boolean available = true;
-    private Date timeOfDay; // TODO Timezone change.
+    private AlarmTimeOfDay timeOfDay; // TODO Timezone change.
     private Location location;
     private Double locationRadius; // TODO Integrate this.
     private String locationAddress;
     private Integer dayOfWeek;
     private boolean repeat = false;
     private String ringtone;
-
-    public enum Weekday {
-        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
-    }
 
     public static Alarm findById(Context context, long id) {
 
@@ -102,7 +96,7 @@ public class Alarm {
         alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
         alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
         alarm.setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
-        alarm.setTimeOfDay(new Date(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
+        alarm.setTimeOfDay(new AlarmTimeOfDay(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
 
         Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
         alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
@@ -126,7 +120,7 @@ public class Alarm {
         values.put(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE, getAvailable());
 
         if (getTimeOfDay() != null)
-            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY, getTimeOfDay().getTime());
+            values.put(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY, getTimeOfDay().toInteger());
 
         if (getLocation() != null) {
             values.put(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE, getLocation().getLatitude());
@@ -150,11 +144,11 @@ public class Alarm {
         return Uri.parse("content://com.euyuil.alarmmap.provider/alarm/" + getId().toString());
     }
 
-    public boolean getDayOfWeek(Weekday weekday) {
+    public boolean getDayOfWeek(AlarmWeekday weekday) {
         return dayOfWeek != null && (dayOfWeek & (1 << weekday.ordinal())) != 0;
     }
 
-    public void setDayOfWeek(Weekday weekday, boolean flag) {
+    public void setDayOfWeek(AlarmWeekday weekday, boolean flag) {
         if (dayOfWeek == null)
             dayOfWeek = 0;
         if (flag)
@@ -187,11 +181,11 @@ public class Alarm {
         this.title = title;
     }
 
-    public Date getTimeOfDay() {
+    public AlarmTimeOfDay getTimeOfDay() {
         return timeOfDay;
     }
 
-    public void setTimeOfDay(Date timeOfDay) {
+    public void setTimeOfDay(AlarmTimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
     }
 

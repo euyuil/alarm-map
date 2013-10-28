@@ -33,15 +33,9 @@ public class AlarmRegisterUtility {
             return;
 
         Date now = new Date();
+        Date nextRingingDate = AlarmDateTimeUtility.getNextRingingDateTime(now, alarm);
 
-        if (alarm.getRepeat())
-            alarm.setTimeOfDay(AlarmDateTimeUtility
-                    .getNextRingingDateTimeFromRepeatAlarm(now, alarm));
-        else
-            alarm.setTimeOfDay(AlarmDateTimeUtility
-                    .getFirstOccurrenceOfThisTimeInTheFuture(now, alarm.getTimeOfDay()));
-
-        long triggerAtMillis = alarm.getTimeOfDay().getTime();
+        long triggerAtMillis = nextRingingDate.getTime();
 
         Log.i(TAG, String.format("register %s %s %d %d",
                 alarm.getUri(),

@@ -15,9 +15,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
-
 /**
  * List view adapter for alarm entities.
  * @author EUYUIL
@@ -50,7 +47,7 @@ public class AlarmListAdapter extends CursorAdapter {
         final Alarm alarm = Alarm.fromCursor(cursor);
 
         title.setText(alarm.getTitle());
-        timeOfDay.setText(new SimpleDateFormat("HH:mm").format(alarm.getTimeOfDay()));
+        timeOfDay.setText(alarm.getTimeOfDay().toString());
         location.setText(alarm.getLocation().toString());
         dayOfWeek.setText(alarm.getDayOfWeek().toString());
         available.setChecked(alarm.getAvailable());
@@ -66,10 +63,8 @@ public class AlarmListAdapter extends CursorAdapter {
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show();
                                 TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
-                                GregorianCalendar calendar = new GregorianCalendar();
-                                calendar.set(GregorianCalendar.HOUR_OF_DAY, timePicker.getCurrentHour());
-                                calendar.set(GregorianCalendar.MINUTE, timePicker.getCurrentMinute());
-                                alarm.setTimeOfDay(calendar.getTime());
+                                alarm.setTimeOfDay(new AlarmTimeOfDay(
+                                        timePicker.getCurrentHour(), timePicker.getCurrentMinute()));
                                 alarm.update(context);
                             }
                         })

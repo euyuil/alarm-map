@@ -20,7 +20,7 @@ public class MainActivity extends FragmentActivity {
         switch (item.getItemId()) {
             case R.id.action_add_alarm:
                 Alarm alarm = new Alarm();
-                alarm.setTimeOfDay(new Date());
+                alarm.setTimeOfDay(new AlarmTimeOfDay(new Date()));
                 alarm.insert(this);
                 return true;
             case R.id.action_settings:
