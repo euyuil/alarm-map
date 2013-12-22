@@ -9,8 +9,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.euyuil.alarmmap.Alarm;
+import com.euyuil.alarmmap.AlarmApplication;
+import com.euyuil.alarmmap.AlarmContract;
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
 import com.euyuil.alarmmap.AlarmDbHelper;
+import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
 /**
  * Provides alarm entities.
@@ -20,14 +24,19 @@ import com.euyuil.alarmmap.AlarmDbHelper;
 
 public class AlarmProvider extends ContentProvider {
 
+    public static final String CONTENT_AUTHORITY = "com.euyuil.alarmmap.provider";
+    public static final String CONTENT_TYPE_DIR = "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
+    public static final String CONTENT_TYPE_ITEM = "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
+
     private static final int ALARM = 1;
     private static final int ALARM_ID = 2;
 
     private static final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        matcher.addURI("com.euyuil.alarmmap.provider", "alarm", ALARM);
-        matcher.addURI("com.euyuil.alarmmap.provider", "alarm/#", ALARM_ID);
+        matcher.addURI(CONTENT_AUTHORITY, AlarmContract.AlarmEntry.TABLE_NAME, ALARM);
+        matcher.addURI(CONTENT_AUTHORITY,
+                String.format("%s/#", AlarmContract.AlarmEntry.TABLE_NAME), ALARM_ID);
     }
 
     private AlarmDbHelper alarmDbHelper;
@@ -82,10 +91,10 @@ public class AlarmProvider extends ContentProvider {
         switch (matcher.match(uri)) {
 
             case ALARM:
-                return "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
+                return CONTENT_TYPE_DIR;
 
             case ALARM_ID:
-                return "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
+                return CONTENT_TYPE_ITEM;
 
             default:
                 return null;
@@ -104,19 +113,16 @@ public class AlarmProvider extends ContentProvider {
                 if (db == null)
                     return null;
 
-                Context context = getContext();
-
-                if (context == null)
-                    return null;
-
                 long id = db.insert(AlarmEntry.TABLE_NAME, AlarmEntry.COLUMN_NAME_NULLABLE, values);
 
                 if (id <= 0)
                     return null;
 
-                context.getContentResolver().notifyChange(uri, null);
+                AlarmRegisterUtility.register(new Alarm(values));
 
-                return Uri.parse("content://com.euyuil.alarmmap.provider/" + id);
+                AlarmApplication.contentResolver().notifyChange(uri, null);
+
+                return Uri.parse("content://com.euyuil.alarmmap.provider/" + id); // TODO Mistake?
         }
 
         return null;
@@ -124,6 +130,8 @@ public class AlarmProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+
+        // TODO Find a way to unregister alarms.
 
         switch (matcher.match(uri)) {
 
@@ -159,6 +167,8 @@ public class AlarmProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+        // TODO Find a way to register alarms.
 
         switch (matcher.match(uri)) {
 

@@ -45,7 +45,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Alarm alarm = Alarm.findById(getActivity(), id);
+                Alarm alarm = Alarm.findById(id);
                 if (alarm != null)
                     alarm.delete(getActivity());
                 return true;
@@ -56,7 +56,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
             @Override
             public EnhancedListView.Undoable onDismiss(EnhancedListView enhancedListView, int i) {
                 long id = listAdapter.getItemId(i);
-                final Alarm alarm = Alarm.findById(getActivity(), id);
+                final Alarm alarm = Alarm.findById(id);
                 if (alarm != null)
                     alarm.delete(getActivity());
                 return new EnhancedListView.Undoable() {

@@ -7,25 +7,27 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.euyuil.alarmmap.Alarm;
+import com.euyuil.alarmmap.AlarmApplication;
 import com.euyuil.alarmmap.service.AlarmService;
 
-import java.text.SimpleDateFormat;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 
 public class AlarmRegisterUtility {
 
     public static final String TAG = "AlarmDateTimeUtility";
 
-    public static void registerAll(Context context) {
+    public static void registerAll() {
         // TODO
     }
 
-    public static void register(Context context, Alarm alarm) {
+    public static void register(@NotNull Alarm alarm) {
 
         AlarmManager alarmManager = (AlarmManager)
-                context.getSystemService(Context.ALARM_SERVICE);
+                AlarmApplication.context().getSystemService(Context.ALARM_SERVICE);
 
-        PendingIntent pendingIntent = getPendingIntent(context, alarm);
+        PendingIntent pendingIntent = getPendingIntent(AlarmApplication.context(), alarm);
 
         alarmManager.cancel(pendingIntent);
 
@@ -38,8 +40,8 @@ public class AlarmRegisterUtility {
         long triggerAtMillis = nextRingingDate.getTime();
 
         Log.i(TAG, String.format("register %s %s %d %d",
-                alarm.getUri(),
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(alarm.getTimeOfDay()),
+                alarm.toUri(),
+                alarm.getTimeOfDay().toString(),
                 triggerAtMillis,
                 triggerAtMillis - System.currentTimeMillis()));
 
@@ -53,16 +55,16 @@ public class AlarmRegisterUtility {
 
         PendingIntent pendingIntent = getPendingIntent(context, alarm);
 
-        Log.i(TAG, String.format("unregister %s", alarm.getUri()));
+        Log.i(TAG, String.format("unregister %s", alarm.toUri()));
 
         alarmManager.cancel(pendingIntent);
     }
 
-    public static PendingIntent getPendingIntent(Context context, Alarm alarm) {
+    private static PendingIntent getPendingIntent(Context context, Alarm alarm) {
 
         Intent intent = new Intent(context, AlarmService.class)
                 .setAction(AlarmService.ACTION)
-                .setData(alarm.getUri());
+                .setData(alarm.toUri());
 
         return PendingIntent.getService(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

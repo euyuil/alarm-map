@@ -1,13 +1,14 @@
 package com.euyuil.alarmmap;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 
 import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
-import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The model for Alarm object.
@@ -16,6 +17,8 @@ import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
  */
 
 public class Alarm {
+
+    public static final Uri CONTENT_URI = Uri.parse("content://com.euyuil.alarmmap.provider/alarm");
 
     private Long id; // TODO Maybe long?
     private String title;
@@ -28,39 +31,66 @@ public class Alarm {
     private boolean repeat = false;
     private String ringtone;
 
-    public static Alarm findById(Context context, long id) {
+    public static Alarm findById(long id) {
 
-        Cursor cursor = context.getContentResolver().query(
+        Cursor cursor = AlarmApplication.contentResolver().query(
                 Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
                 AlarmEntry.PROJECTION_ALARM_DETAILS, AlarmEntry._ID + " = ?",
                 new String[]{String.valueOf(id)}, null);
 
         if (cursor != null && cursor.moveToFirst())
-            return fromCursor(cursor);
+            return new Alarm(cursor);
 
         return null;
     }
 
-    public static Alarm findByUri(Context context, Uri uri) {
+    public static Alarm findByUri(@NotNull Uri uri) {
 
-        Cursor cursor = context.getContentResolver().query(
+        Cursor cursor = AlarmApplication.contentResolver().query(
                 uri, AlarmEntry.PROJECTION_ALARM_DETAILS, null, null, null);
 
         if (cursor != null && cursor.moveToFirst())
-            return fromCursor(cursor);
+            return new Alarm(cursor);
 
         return null;
     }
 
-    public static Cursor findAll(Context context) {
-        return context.getContentResolver().query(
+    public static Cursor findAll() {
+        return AlarmApplication.contentResolver().query(
                 Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
                 AlarmEntry.PROJECTION_ALARM_DETAILS, null, null, null);
     }
 
-    public boolean insert(Context context) {
+    public Alarm() {
+    }
 
-        Uri uri = context.getContentResolver().insert(getClassUri(), getContentValues());
+    public Alarm(@NotNull ContentValues values) {
+        // TODO
+    }
+
+    public Alarm(@NotNull Cursor cursor) {
+
+        setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
+        setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
+        setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
+        setTimeOfDay(new AlarmTimeOfDay(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
+
+        Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
+        alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
+        alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
+        setLocation(alarmLocation);
+
+        setLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
+        setLocationAddress(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_ADDRESS)));
+        setDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
+        setRepeat(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_REPEAT)) != 0);
+        setRingtone(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_RINGTONE)));
+    }
+
+    public boolean insert() {
+
+        Uri uri = AlarmApplication.contentResolver()
+                .insert(CONTENT_URI, toContentValues());
 
         if (uri == null)
             return false;
@@ -71,48 +101,20 @@ public class Alarm {
             id = null;
         }
 
-        if (id != null) {
-            AlarmRegisterUtility.register(context, this);
-            return true;
-        }
-
-        return false;
+        return id != null;
     }
 
-    public boolean delete(Context context) {
-        AlarmRegisterUtility.unregister(context, this); // TODO Move those to service.
-        return context.getContentResolver().delete(getUri(), null, null) > 0;
+    public boolean delete() {
+        return AlarmApplication.contentResolver()
+                .delete(toUri(), null, null) > 0;
     }
 
-    public boolean update(Context context) {
-        AlarmRegisterUtility.register(context, this);
-        return context.getContentResolver().update(getUri(), getContentValues(), null, null) > 0;
+    public boolean update() {
+        return AlarmApplication.contentResolver()
+                .update(toUri(), toContentValues(), null, null) > 0;
     }
 
-    public static Alarm fromCursor(Cursor cursor) {
-
-        Alarm alarm = new Alarm();
-
-        alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
-        alarm.setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
-        alarm.setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
-        alarm.setTimeOfDay(new AlarmTimeOfDay(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
-
-        Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
-        alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
-        alarmLocation.setLongitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE)));
-        alarm.setLocation(alarmLocation);
-
-        alarm.setLocationRadius(cursor.getDouble(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS)));
-        alarm.setLocationAddress(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_ADDRESS)));
-        alarm.setDayOfWeek(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK)));
-        alarm.setRepeat(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_REPEAT)) != 0);
-        alarm.setRingtone(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_RINGTONE)));
-
-        return alarm;
-    }
-
-    public ContentValues getContentValues() {
+    public ContentValues toContentValues() {
 
         ContentValues values = new ContentValues();
 
@@ -136,12 +138,8 @@ public class Alarm {
         return values;
     }
 
-    public static Uri getClassUri() {
-        return Uri.parse("content://com.euyuil.alarmmap.provider/alarm");
-    }
-
-    public Uri getUri() {
-        return Uri.parse("content://com.euyuil.alarmmap.provider/alarm/" + getId().toString());
+    public Uri toUri() {
+        return Uri.parse(String.format("%s/%d", CONTENT_URI, getId()));
     }
 
     public boolean getDayOfWeek(AlarmWeekday weekday) {
@@ -157,6 +155,7 @@ public class Alarm {
             setDayOfWeek(dayOfWeek & ~(1 << weekday.ordinal()));
     }
 
+    @Nullable
     public Long getId() {
         return id;
     }
@@ -173,6 +172,7 @@ public class Alarm {
         this.available = available;
     }
 
+    @Nullable
     public String getTitle() {
         return title;
     }
@@ -189,6 +189,7 @@ public class Alarm {
         this.timeOfDay = timeOfDay;
     }
 
+    @Nullable
     public Location getLocation() {
         return location;
     }
@@ -197,6 +198,7 @@ public class Alarm {
         this.location = location;
     }
 
+    @Nullable
     public Double getLocationRadius() {
         return locationRadius;
     }
@@ -205,6 +207,7 @@ public class Alarm {
         this.locationRadius = locationRadius;
     }
 
+    @Nullable
     public String getLocationAddress() {
         return locationAddress;
     }
@@ -213,6 +216,7 @@ public class Alarm {
         this.locationAddress = locationAddress;
     }
 
+    @Nullable
     public Integer getDayOfWeek() {
         return dayOfWeek;
     }
@@ -231,6 +235,7 @@ public class Alarm {
         this.repeat = repeat;
     }
 
+    @Nullable
     public String getRingtone() {
         return ringtone;
     }

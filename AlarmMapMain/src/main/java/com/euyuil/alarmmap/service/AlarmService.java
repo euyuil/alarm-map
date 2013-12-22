@@ -6,8 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.euyuil.alarmmap.Alarm;
-import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
+import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
 import java.util.Date;
 
@@ -37,6 +37,9 @@ public class AlarmService extends Service { // TODO Register content observers.
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.i(TAG, String.format("onStartCommand %s", intent.getData()));
+
+        if (intent.getData() == null)
+            return 0;
 
         Alarm alarm = Alarm.findByUri(getApplicationContext(), intent.getData());
 
@@ -69,7 +72,7 @@ public class AlarmService extends Service { // TODO Register content observers.
 
         }
 
-        return super.onStartCommand(intent, flags, startId);
+        return 0;
     }
 
     @Override
@@ -79,6 +82,6 @@ public class AlarmService extends Service { // TODO Register content observers.
     }
 
     private void ring(Alarm alarm) {
-        Log.i(TAG, String.format("ring %s", alarm.getUri()));
+        Log.i(TAG, String.format("ring %s", alarm.toUri()));
     }
 }
