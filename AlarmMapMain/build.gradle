@@ -14,7 +14,7 @@ buildscript {
             }
         }
 
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.7.+'
 
         // TODO Avoid work-around for newer Gradle versions.
         // https://github.com/JakeWharton/gradle-android-test-plugin/issues/3
