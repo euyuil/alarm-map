@@ -9,12 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.AlarmApplication;
 import com.euyuil.alarmmap.model.AlarmContract;
-import com.euyuil.alarmmap.model.AlarmContract.AlarmEntry;
 import com.euyuil.alarmmap.model.MyDbHelper;
-import com.euyuil.alarmmap.model.Alarm;
-import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
+import com.euyuil.alarmmap.utility.Babysitter;
 
 /**
  * Provides alarm entities.
@@ -42,12 +39,12 @@ public class AlarmProvider extends ContentProvider {
 
         // Gets all alarms.
         // Address - content://com.euyuil.alarmmap.provider/alarm
-        matcher.addURI(CONTENT_AUTHORITY, AlarmContract.AlarmEntry.TABLE_NAME, ALARM);
+        matcher.addURI(CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, ALARM);
 
         // Gets one alarm.
         // Address - content://com.euyuil.alarmmap.provider/alarm/1
         matcher.addURI(CONTENT_AUTHORITY,
-                String.format("%s/#", AlarmContract.AlarmEntry.TABLE_NAME), ALARM_ID);
+                String.format("%s/#", AlarmContract.TABLE_NAME), ALARM_ID);
     }
 
     private MyDbHelper helper;
@@ -59,41 +56,148 @@ public class AlarmProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
 
         switch (matcher.match(uri)) {
+
+            // Gets all alarms.
             case ALARM:
                 if (TextUtils.isEmpty(sortOrder))
-                    sortOrder = AlarmEntry._ID + " ASC";
+                    sortOrder = AlarmContract._ID + " ASC";
                 break;
+
+            // Gets one alarm with ID.
             case ALARM_ID:
-                selection = AlarmEntry._ID + " = ?";
+                selection = AlarmContract._ID + " = ?";
                 selectionArgs = new String[] { uri.getLastPathSegment() };
+                break;
+
+            // Error URI.
+            default:
+                // TODO Error handling
+                return null;
+        }
+
+        Context context = getContext();
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        if (context == null || db == null)
+            return null;
+
+        Cursor cursor = db.query(AlarmContract.TABLE_NAME, projection,
+                selection, selectionArgs, null, null, sortOrder);
+
+        if (cursor == null)
+            return null;
+
+        cursor.setNotificationUri(context.getContentResolver(), uri);
+
+        return cursor;
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+
+        switch (matcher.match(uri)) {
+
+            case ALARM:
                 break;
             default:
                 // TODO Error handling
                 return null;
         }
 
-        SQLiteDatabase db = helper.getReadableDatabase();
+        Context context = getContext();
+        SQLiteDatabase db = helper.getWritableDatabase();
 
-        if (db == null)
+        if (context == null || db == null)
             return null;
 
-        Cursor cursor = db.query(AlarmEntry.TABLE_NAME, projection,
-                selection, selectionArgs, null, null, sortOrder);
+        long id = db.insert(AlarmContract.TABLE_NAME, AlarmContract.COLUMN_NAME_NULLABLE, values);
 
-        if (cursor == null)
+        if (id <= 0)
             return null;
+
+        Uri alarm = Uri.parse("content://com.euyuil.alarmmap.provider/" + id);
+
+        Babysitter.takeCareOf(alarm);
+
+        context.getContentResolver().notifyChange(uri, null);
+        // context.getContentResolver().notifyChange(alarm, null); TODO Is it necessary? Or the above one is redundant?
+
+        return alarm;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+
+        switch (matcher.match(uri)) {
+
+            // Delete all alarms, or with selection.
+            case ALARM:
+                break;
+
+            // Delete alarm with ID, ignore client's selection.
+            case ALARM_ID:
+                selection = AlarmContract._ID + " = ?";
+                selectionArgs = new String[] { uri.getLastPathSegment() };
+                break;
+
+            // 0 rows affected.
+            default:
+                return 0;
+        }
 
         Context context = getContext();
+        SQLiteDatabase db = helper.getWritableDatabase();
 
-        if (context == null)
-            return null;
+        if (context == null || db == null)
+            return 0;
 
-        cursor.setNotificationUri(context.getContentResolver(), uri);
+        int ret = db.delete(AlarmContract.TABLE_NAME, selection, selectionArgs);
 
-        return cursor;
+        if (ret > 0) {
+            Babysitter.takeCareOf(uri);
+            context.getContentResolver().notifyChange(uri, null);
+        }
+
+        return ret;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+        switch (matcher.match(uri)) {
+
+            // Update all alarms, or with selection.
+            case ALARM:
+                break;
+
+            // Update alarm with ID, ignore client's selection.
+            case ALARM_ID:
+                selection = AlarmContract._ID + " = ?";
+                selectionArgs = new String[] { uri.getLastPathSegment() };
+                break;
+
+            default:
+                return 0;
+        }
+
+        Context context = getContext();
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        if (context == null || db == null)
+            return 0;
+
+        int ret = db.update(AlarmContract.TABLE_NAME, values, selection, selectionArgs);
+
+        if (ret > 0) {
+            Babysitter.takeCareOf(uri);
+            context.getContentResolver().notifyChange(uri, null);
+        }
+
+        return ret;
     }
 
     @Override
@@ -110,115 +214,5 @@ public class AlarmProvider extends ContentProvider {
             default:
                 return null;
         }
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-
-        switch (matcher.match(uri)) {
-
-            case ALARM:
-
-                SQLiteDatabase db = helper.getWritableDatabase();
-
-                if (db == null)
-                    return null;
-
-                long id = db.insert(AlarmEntry.TABLE_NAME, AlarmEntry.COLUMN_NAME_NULLABLE, values);
-
-                if (id <= 0)
-                    return null;
-
-                AlarmRegisterUtility.register(new Alarm(values));
-
-                AlarmApplication.contentResolver().notifyChange(uri, null);
-
-                return Uri.parse("content://com.euyuil.alarmmap.provider/" + id); // TODO Mistake?
-        }
-
-        return null;
-    }
-
-    @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-
-        // TODO Find a way to unregister alarms.
-
-        switch (matcher.match(uri)) {
-
-            case ALARM:
-                break;
-
-            case ALARM_ID:
-                selection = AlarmEntry._ID + " = ?";
-                selectionArgs = new String[] { uri.getLastPathSegment() };
-                break;
-
-            default:
-                return 0;
-        }
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-
-        if (db == null)
-            return 0;
-
-        Context context = getContext();
-
-        if (context == null)
-            return 0;
-
-        int ret = db.delete(AlarmEntry.TABLE_NAME, selection, selectionArgs);
-
-        if (ret > 0)
-            context.getContentResolver().notifyChange(uri, null);
-
-        return ret;
-    }
-
-    @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-
-        // TODO Find a way to register alarms.
-
-        switch (matcher.match(uri)) {
-
-            case ALARM:
-                break;
-
-            case ALARM_ID:
-                selection = AlarmEntry._ID + " = ?";
-                selectionArgs = new String[] { uri.getLastPathSegment() };
-                break;
-
-            default:
-                return 0;
-        }
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-
-        if (db == null)
-            return 0;
-
-        Context context = getContext();
-
-        if (context == null)
-            return 0;
-
-        int ret = db.update(AlarmEntry.TABLE_NAME, values, selection, selectionArgs);
-
-        if (ret > 0)
-            context.getContentResolver().notifyChange(uri, null);
-
-        return ret;
-    }
-
-    /**
-     * Invoke this method internally in the provider, each time after the
-     * alarm being inserted, updated, or deleted.
-     * @param alarm The URI of the alarm, which should be taken care of.
-     */
-    private void takeCareOf(Uri alarm) {
-        // TODO Finish this method.
     }
 }

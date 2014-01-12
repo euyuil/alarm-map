@@ -7,8 +7,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.euyuil.alarmmap.model.AlarmContract.AlarmEntry;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -25,22 +23,22 @@ public class MyDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "alarm.db";
 
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + AlarmEntry.TABLE_NAME + " (" +
-            AlarmEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-            AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE + " BOOLEAN NOT NULL DEFAULT 0, " +
-            AlarmEntry.COLUMN_NAME_ALARM_TITLE + " TEXT, " +
-            AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY + " INTEGER, " +
-            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
-            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
-            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +
-            AlarmEntry.COLUMN_NAME_ALARM_LOCATION_ADDRESS + " TEXT, " +
-            AlarmEntry.COLUMN_NAME_ALARM_DAY_OF_WEEK + " INTEGER, " +
-            AlarmEntry.COLUMN_NAME_ALARM_REPEAT + " BOOLEAN NOT NULL DEFAULT 0, " +
-            AlarmEntry.COLUMN_NAME_ALARM_RINGTONE + " TEXT" +
+            "CREATE TABLE " + AlarmContract.TABLE_NAME + " (" +
+            AlarmContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            AlarmContract.COLUMN_NAME_ALARM_AVAILABLE + " BOOLEAN NOT NULL DEFAULT 0, " +
+            AlarmContract.COLUMN_NAME_ALARM_TITLE + " TEXT, " +
+            AlarmContract.COLUMN_NAME_ALARM_TIME_OF_DAY + " INTEGER, " +
+            AlarmContract.COLUMN_NAME_ALARM_LOCATION_LATITUDE + " REAL, " +
+            AlarmContract.COLUMN_NAME_ALARM_LOCATION_LONGITUDE + " REAL, " +
+            AlarmContract.COLUMN_NAME_ALARM_LOCATION_RADIUS + " REAL, " +
+            AlarmContract.COLUMN_NAME_ALARM_LOCATION_ADDRESS + " TEXT, " +
+            AlarmContract.COLUMN_NAME_ALARM_DAY_OF_WEEK + " INTEGER, " +
+            AlarmContract.COLUMN_NAME_ALARM_REPEAT + " BOOLEAN NOT NULL DEFAULT 0, " +
+            AlarmContract.COLUMN_NAME_ALARM_RINGTONE + " TEXT" +
             " )";
 
     private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + AlarmEntry.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + AlarmContract.TABLE_NAME;
 
     public static <T> T getObject(Cursor cursor, Class<T> clazz) {
         ContentValues contentValues = new ContentValues();

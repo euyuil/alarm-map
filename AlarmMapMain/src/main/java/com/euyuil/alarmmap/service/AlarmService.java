@@ -33,6 +33,15 @@ public class AlarmService extends Service { // TODO Register content observers.
         super.onCreate();
     }
 
+    /**
+     * Every time the Service starts, it should babysit all the alarms
+     * if intent.getData() is empty, or URI to all alarms.
+     * But if the intent.getData() is one alarm, just babysit that one.
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
