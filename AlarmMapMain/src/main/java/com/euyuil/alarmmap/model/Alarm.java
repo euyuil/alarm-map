@@ -1,21 +1,25 @@
-package com.euyuil.alarmmap;
+package com.euyuil.alarmmap.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 
-import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
+import com.euyuil.alarmmap.AlarmApplication;
+import com.euyuil.alarmmap.model.AlarmContract.AlarmEntry;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.IllegalFormatConversionException;
 
 /**
  * The model for Alarm object.
  * @author EUYUIL
  * @version 0.0.20130927
  */
-
 public class Alarm {
 
     public static final Uri CONTENT_URI = Uri.parse("content://com.euyuil.alarmmap.provider/alarm");
@@ -23,7 +27,7 @@ public class Alarm {
     private Long id; // TODO Maybe long?
     private String title;
     private boolean available = true;
-    private AlarmTimeOfDay timeOfDay; // TODO Timezone change.
+    private TimeOfDay timeOfDay; // TODO Timezone change.
     private Location location;
     private Double locationRadius; // TODO Integrate this.
     private String locationAddress;
@@ -73,7 +77,7 @@ public class Alarm {
         setId(cursor.getLong(cursor.getColumnIndex(AlarmEntry._ID)));
         setTitle(cursor.getString(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TITLE)));
         setAvailable(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_AVAILABLE)) != 0);
-        setTimeOfDay(new AlarmTimeOfDay(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
+        setTimeOfDay(new TimeOfDay(cursor.getInt(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_TIME_OF_DAY))));
 
         Location alarmLocation = new Location("content://com.euyuil.alarmmap.provider/alarm");
         alarmLocation.setLatitude(cursor.getLong(cursor.getColumnIndex(AlarmEntry.COLUMN_NAME_ALARM_LOCATION_LATITUDE)));
@@ -142,11 +146,11 @@ public class Alarm {
         return Uri.parse(String.format("%s/%d", CONTENT_URI, getId()));
     }
 
-    public boolean getDayOfWeek(AlarmWeekday weekday) {
+    public boolean getDayOfWeek(Weekday weekday) {
         return dayOfWeek != null && (dayOfWeek & (1 << weekday.ordinal())) != 0;
     }
 
-    public void setDayOfWeek(AlarmWeekday weekday, boolean flag) {
+    public void setDayOfWeek(Weekday weekday, boolean flag) {
         if (dayOfWeek == null)
             dayOfWeek = 0;
         if (flag)
@@ -181,11 +185,11 @@ public class Alarm {
         this.title = title;
     }
 
-    public AlarmTimeOfDay getTimeOfDay() {
+    public TimeOfDay getTimeOfDay() {
         return timeOfDay;
     }
 
-    public void setTimeOfDay(AlarmTimeOfDay timeOfDay) {
+    public void setTimeOfDay(TimeOfDay timeOfDay) {
         this.timeOfDay = timeOfDay;
     }
 
@@ -242,5 +246,83 @@ public class Alarm {
 
     public void setRingtone(String ringtone) {
         this.ringtone = ringtone;
+    }
+
+    /**
+     * This is the data type for the alarm time of day.
+     * @author EUYUIL
+     * @version 0.0.20131028
+     */
+    public static class TimeOfDay {
+
+        private int hour;
+        private int minute;
+
+        public TimeOfDay() {
+        }
+
+        public TimeOfDay(int hour, int minute) {
+            this.hour = hour;
+            this.minute = minute;
+        }
+
+        public TimeOfDay(String timeOfDay) {
+            String[] splitted = timeOfDay.split(":");
+            if (splitted.length != 2)
+                throw new IllegalFormatConversionException(':', TimeOfDay.class);
+            this.hour = Integer.valueOf(splitted[0]);
+            this.minute = Integer.valueOf(splitted[1]);
+        }
+
+        public TimeOfDay(Date timeOfDay) {
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(timeOfDay);
+            this.hour = calendar.get(GregorianCalendar.HOUR_OF_DAY);
+            this.minute = calendar.get(GregorianCalendar.MINUTE);
+        }
+
+        public TimeOfDay(int integer) {
+            this.hour = integer / 100;
+            this.minute = integer % 100;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%02d:%02d", this.hour, this.minute);
+        }
+
+        public int toInteger() {
+            return this.hour * 100 + this.minute;
+        }
+
+        public Date toDate() {
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.set(GregorianCalendar.HOUR_OF_DAY, this.hour);
+            calendar.set(GregorianCalendar.MINUTE, this.minute);
+            return calendar.getTime();
+        }
+
+        public int getHour() {
+            return hour;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public int getMinute() {
+            return minute;
+        }
+
+        public void setMinute(int minute) {
+            this.minute = minute;
+        }
+    }
+
+    /**
+    * Created by Yue on 13-10-28.
+    */
+    public static enum Weekday {
+        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
     }
 }

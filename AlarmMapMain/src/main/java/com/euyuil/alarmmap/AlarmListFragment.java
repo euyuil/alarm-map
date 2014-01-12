@@ -13,7 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
+import com.euyuil.alarmmap.model.AlarmContract.AlarmEntry;
+import com.euyuil.alarmmap.model.Alarm;
 
 import de.timroes.android.listview.EnhancedListView;
 
@@ -47,7 +48,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Alarm alarm = Alarm.findById(id);
                 if (alarm != null)
-                    alarm.delete(getActivity());
+                    alarm.delete();
                 return true;
             }
         });
@@ -58,12 +59,12 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
                 long id = listAdapter.getItemId(i);
                 final Alarm alarm = Alarm.findById(id);
                 if (alarm != null)
-                    alarm.delete(getActivity());
+                    alarm.delete();
                 return new EnhancedListView.Undoable() {
                     @Override
                     public void undo() {
                         if (alarm != null)
-                            alarm.insert(getActivity());
+                            alarm.insert();
                     }
                 };
             }

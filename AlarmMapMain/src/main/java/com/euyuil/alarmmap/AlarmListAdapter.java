@@ -15,12 +15,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.euyuil.alarmmap.model.Alarm;
+import com.euyuil.alarmmap.model.MyDbHelper;
+
 /**
  * List view adapter for alarm entities.
  * @author EUYUIL
  * @version 0.0.20130929
  */
-
 public class AlarmListAdapter extends CursorAdapter {
 
     private final LayoutInflater inflater;
@@ -44,7 +46,7 @@ public class AlarmListAdapter extends CursorAdapter {
         TextView dayOfWeek = (TextView) view.findViewById(R.id.day_of_week);
         CheckBox available = (CheckBox) view.findViewById(R.id.available);
 
-        final Alarm alarm = Alarm.fromCursor(cursor);
+        final Alarm alarm = MyDbHelper.getObject(cursor, Alarm.class);
 
         title.setText(alarm.getTitle());
         timeOfDay.setText(alarm.getTimeOfDay().toString());
@@ -63,9 +65,9 @@ public class AlarmListAdapter extends CursorAdapter {
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show();
                                 TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
-                                alarm.setTimeOfDay(new AlarmTimeOfDay(
+                                alarm.setTimeOfDay(new Alarm.TimeOfDay(
                                         timePicker.getCurrentHour(), timePicker.getCurrentMinute()));
-                                alarm.update(context);
+                                alarm.update();
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

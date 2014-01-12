@@ -1,8 +1,6 @@
 package com.euyuil.alarmmap.test.utility;
 
-import com.euyuil.alarmmap.Alarm;
-import com.euyuil.alarmmap.AlarmTimeOfDay;
-import com.euyuil.alarmmap.AlarmWeekday;
+import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.test.RobolectricGradleTestRunner;
 import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 
@@ -25,23 +23,23 @@ public class AlarmDateTimeUtilityTest {
     public void testAlarmWeekdayToCalendarWeekday() {
 
         assertThat(AlarmDateTimeUtility
-                .alarmWeekdayToCalendarWeekday(AlarmWeekday.SUNDAY))
+                .alarmWeekdayToCalendarWeekday(Alarm.Weekday.SUNDAY))
                 .isEqualTo(GregorianCalendar.SUNDAY);
 
         assertThat(AlarmDateTimeUtility
-                .alarmWeekdayToCalendarWeekday(AlarmWeekday.MONDAY))
+                .alarmWeekdayToCalendarWeekday(Alarm.Weekday.MONDAY))
                 .isEqualTo(GregorianCalendar.MONDAY);
 
         assertThat(AlarmDateTimeUtility
-                .alarmWeekdayToCalendarWeekday(AlarmWeekday.TUESDAY))
+                .alarmWeekdayToCalendarWeekday(Alarm.Weekday.TUESDAY))
                 .isEqualTo(GregorianCalendar.TUESDAY);
 
         assertThat(AlarmDateTimeUtility
-                .alarmWeekdayToCalendarWeekday(AlarmWeekday.FRIDAY))
+                .alarmWeekdayToCalendarWeekday(Alarm.Weekday.FRIDAY))
                 .isEqualTo(GregorianCalendar.FRIDAY);
 
         assertThat(AlarmDateTimeUtility
-                .alarmWeekdayToCalendarWeekday(AlarmWeekday.SATURDAY))
+                .alarmWeekdayToCalendarWeekday(Alarm.Weekday.SATURDAY))
                 .isEqualTo(GregorianCalendar.SATURDAY);
     }
 
@@ -50,23 +48,23 @@ public class AlarmDateTimeUtilityTest {
 
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.SUNDAY))
-                .isEqualTo(AlarmWeekday.SUNDAY);
+                .isEqualTo(Alarm.Weekday.SUNDAY);
 
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.MONDAY))
-                .isEqualTo(AlarmWeekday.MONDAY);
+                .isEqualTo(Alarm.Weekday.MONDAY);
 
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.TUESDAY))
-                .isEqualTo(AlarmWeekday.TUESDAY);
+                .isEqualTo(Alarm.Weekday.TUESDAY);
 
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.FRIDAY))
-                .isEqualTo(AlarmWeekday.FRIDAY);
+                .isEqualTo(Alarm.Weekday.FRIDAY);
 
         assertThat(AlarmDateTimeUtility
                 .calendarWeekdayToAlarmWeekday(GregorianCalendar.SATURDAY))
-                .isEqualTo(AlarmWeekday.SATURDAY);
+                .isEqualTo(Alarm.Weekday.SATURDAY);
     }
 
     @Test
@@ -176,11 +174,11 @@ public class AlarmDateTimeUtilityTest {
 
         calendar.set(2013, GregorianCalendar.OCTOBER, 24);
         assertThat(AlarmDateTimeUtility
-                .getNowWeekday(calendar.getTime())).isEqualTo(AlarmWeekday.THURSDAY);
+                .getNowWeekday(calendar.getTime())).isEqualTo(Alarm.Weekday.THURSDAY);
 
         calendar.set(2000, GregorianCalendar.FEBRUARY, 29);
         assertThat(AlarmDateTimeUtility
-                .getNowWeekday(calendar.getTime())).isEqualTo(AlarmWeekday.TUESDAY);
+                .getNowWeekday(calendar.getTime())).isEqualTo(Alarm.Weekday.TUESDAY);
     }
 
     @Test
@@ -232,7 +230,7 @@ public class AlarmDateTimeUtilityTest {
 
         calendar.set(2013, GregorianCalendar.APRIL, 1, 12, 0, 0); // 2013-04-01 is a Monday.
 
-        AlarmTimeOfDay alarmTime = new AlarmTimeOfDay(12, 0);
+        Alarm.TimeOfDay alarmTime = new Alarm.TimeOfDay(12, 0);
         alarm.setTimeOfDay(alarmTime); // Alarm time is 12:00 .
 
         // Repeat weekday includes today's, no other repeat weekday, now time is before alarm time, expect ringing today.
@@ -274,8 +272,8 @@ public class AlarmDateTimeUtilityTest {
         alarm.setRepeat(true);
         alarm.setDayOfWeek(0);
         alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(now), true);
-        alarm.setDayOfWeek(AlarmWeekday.WEDNESDAY, true);
-        alarm.setDayOfWeek(AlarmWeekday.FRIDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.WEDNESDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
         expected = AlarmDateTimeUtility
                 .getThatTimeOnThisDay(now, alarmTime.toDate()); // Today 12:00 .
 
@@ -291,11 +289,11 @@ public class AlarmDateTimeUtilityTest {
         alarm.setRepeat(true);
         alarm.setDayOfWeek(0);
         alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(now), true);
-        alarm.setDayOfWeek(AlarmWeekday.THURSDAY, true);
-        alarm.setDayOfWeek(AlarmWeekday.FRIDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.THURSDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
         expected = AlarmDateTimeUtility // Next Thursday 12:00 .
                 .getCorrespondingTimeOnThatWeekdayAfterToday(
-                        now, alarmTime.toDate(), AlarmWeekday.THURSDAY);
+                        now, alarmTime.toDate(), Alarm.Weekday.THURSDAY);
 
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(now, alarm))
@@ -309,11 +307,11 @@ public class AlarmDateTimeUtilityTest {
         alarm.setRepeat(true);
         alarm.setDayOfWeek(0);
         alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(now), false);
-        alarm.setDayOfWeek(AlarmWeekday.WEDNESDAY, true);
-        alarm.setDayOfWeek(AlarmWeekday.FRIDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.WEDNESDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
         expected = AlarmDateTimeUtility // Next Wednesday 12:00 .
                 .getCorrespondingTimeOnThatWeekdayAfterToday(
-                        now, alarmTime.toDate(), AlarmWeekday.WEDNESDAY);
+                        now, alarmTime.toDate(), Alarm.Weekday.WEDNESDAY);
 
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(now, alarm))
@@ -327,11 +325,11 @@ public class AlarmDateTimeUtilityTest {
         alarm.setRepeat(true);
         alarm.setDayOfWeek(0);
         alarm.setDayOfWeek(AlarmDateTimeUtility.getNowWeekday(calendar.getTime()), false);
-        alarm.setDayOfWeek(AlarmWeekday.THURSDAY, true);
-        alarm.setDayOfWeek(AlarmWeekday.FRIDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.THURSDAY, true);
+        alarm.setDayOfWeek(Alarm.Weekday.FRIDAY, true);
         expected = AlarmDateTimeUtility // Next Thursday 12:00 .
                 .getCorrespondingTimeOnThatWeekdayAfterToday(
-                        now, alarmTime.toDate(), AlarmWeekday.THURSDAY);
+                        now, alarmTime.toDate(), Alarm.Weekday.THURSDAY);
 
         assertThat(AlarmDateTimeUtility
                 .getNextRingingDateTimeFromRepeatAlarm(now, alarm))

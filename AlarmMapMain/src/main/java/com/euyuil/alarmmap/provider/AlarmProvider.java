@@ -9,11 +9,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.Alarm;
 import com.euyuil.alarmmap.AlarmApplication;
-import com.euyuil.alarmmap.AlarmContract;
-import com.euyuil.alarmmap.AlarmContract.AlarmEntry;
-import com.euyuil.alarmmap.AlarmDbHelper;
+import com.euyuil.alarmmap.model.AlarmContract;
+import com.euyuil.alarmmap.model.AlarmContract.AlarmEntry;
+import com.euyuil.alarmmap.model.MyDbHelper;
+import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
 /**
@@ -21,29 +21,40 @@ import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
  * @author EUYUIL
  * @version 0.0.20130929
  */
-
 public class AlarmProvider extends ContentProvider {
 
-    public static final String CONTENT_AUTHORITY = "com.euyuil.alarmmap.provider";
-    public static final String CONTENT_TYPE_DIR = "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
-    public static final String CONTENT_TYPE_ITEM = "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
+    public static final String CONTENT_AUTHORITY =
+            "com.euyuil.alarmmap.provider";
+
+    public static final String CONTENT_TYPE_DIR =
+            "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
+
+    public static final String CONTENT_TYPE_ITEM =
+            "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
 
     private static final int ALARM = 1;
+
     private static final int ALARM_ID = 2;
 
     private static final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
+
+        // Gets all alarms.
+        // Address - content://com.euyuil.alarmmap.provider/alarm
         matcher.addURI(CONTENT_AUTHORITY, AlarmContract.AlarmEntry.TABLE_NAME, ALARM);
+
+        // Gets one alarm.
+        // Address - content://com.euyuil.alarmmap.provider/alarm/1
         matcher.addURI(CONTENT_AUTHORITY,
                 String.format("%s/#", AlarmContract.AlarmEntry.TABLE_NAME), ALARM_ID);
     }
 
-    private AlarmDbHelper alarmDbHelper;
+    private MyDbHelper helper;
 
     @Override
     public boolean onCreate() {
-        alarmDbHelper = new AlarmDbHelper(getContext());
+        helper = new MyDbHelper(getContext());
         return true;
     }
 
@@ -64,7 +75,7 @@ public class AlarmProvider extends ContentProvider {
                 return null;
         }
 
-        SQLiteDatabase db = alarmDbHelper.getReadableDatabase();
+        SQLiteDatabase db = helper.getReadableDatabase();
 
         if (db == null)
             return null;
@@ -108,7 +119,7 @@ public class AlarmProvider extends ContentProvider {
 
             case ALARM:
 
-                SQLiteDatabase db = alarmDbHelper.getWritableDatabase();
+                SQLiteDatabase db = helper.getWritableDatabase();
 
                 if (db == null)
                     return null;
@@ -147,7 +158,7 @@ public class AlarmProvider extends ContentProvider {
                 return 0;
         }
 
-        SQLiteDatabase db = alarmDbHelper.getWritableDatabase();
+        SQLiteDatabase db = helper.getWritableDatabase();
 
         if (db == null)
             return 0;
@@ -184,7 +195,7 @@ public class AlarmProvider extends ContentProvider {
                 return 0;
         }
 
-        SQLiteDatabase db = alarmDbHelper.getWritableDatabase();
+        SQLiteDatabase db = helper.getWritableDatabase();
 
         if (db == null)
             return 0;
@@ -200,5 +211,14 @@ public class AlarmProvider extends ContentProvider {
             context.getContentResolver().notifyChange(uri, null);
 
         return ret;
+    }
+
+    /**
+     * Invoke this method internally in the provider, each time after the
+     * alarm being inserted, updated, or deleted.
+     * @param alarm The URI of the alarm, which should be taken care of.
+     */
+    private void takeCareOf(Uri alarm) {
+        // TODO Finish this method.
     }
 }

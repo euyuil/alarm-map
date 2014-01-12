@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.euyuil.alarmmap.Alarm;
+import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 
@@ -41,7 +41,7 @@ public class AlarmService extends Service { // TODO Register content observers.
         if (intent.getData() == null)
             return 0;
 
-        Alarm alarm = Alarm.findByUri(getApplicationContext(), intent.getData());
+        Alarm alarm = Alarm.findByUri(intent.getData());
 
         Date now = new Date();
         Date nextRingingDate = AlarmDateTimeUtility.getNextRingingDateTime(now, alarm);
@@ -68,7 +68,7 @@ public class AlarmService extends Service { // TODO Register content observers.
 
             // Should calculate time diff if it's larger than 1 minute then use this.
             // Otherwise just register alarm manager manually.
-            AlarmRegisterUtility.register(getApplicationContext(), alarm);
+            AlarmRegisterUtility.register(alarm);
 
         }
 

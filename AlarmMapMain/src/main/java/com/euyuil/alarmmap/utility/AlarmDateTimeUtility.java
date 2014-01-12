@@ -1,8 +1,6 @@
 package com.euyuil.alarmmap.utility;
 
-import com.euyuil.alarmmap.Alarm;
-import com.euyuil.alarmmap.AlarmTimeOfDay;
-import com.euyuil.alarmmap.AlarmWeekday;
+import com.euyuil.alarmmap.model.Alarm;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -18,12 +16,12 @@ public class AlarmDateTimeUtility {
 
     public static final String TAG = "AlarmDateTimeUtility";
 
-    public static int alarmWeekdayToCalendarWeekday(AlarmWeekday weekday) {
-        return weekday.ordinal() - AlarmWeekday.SUNDAY.ordinal() + GregorianCalendar.SUNDAY;
+    public static int alarmWeekdayToCalendarWeekday(Alarm.Weekday weekday) {
+        return weekday.ordinal() - Alarm.Weekday.SUNDAY.ordinal() + GregorianCalendar.SUNDAY;
     }
 
-    public static AlarmWeekday calendarWeekdayToAlarmWeekday(int weekday) {
-        return AlarmWeekday.values()[weekday - GregorianCalendar.SUNDAY + AlarmWeekday.SUNDAY.ordinal()];
+    public static Alarm.Weekday calendarWeekdayToAlarmWeekday(int weekday) {
+        return Alarm.Weekday.values()[weekday - GregorianCalendar.SUNDAY + Alarm.Weekday.SUNDAY.ordinal()];
     }
 
     public static Date clearDateButPreserveTime(Date date) {
@@ -70,8 +68,8 @@ public class AlarmDateTimeUtility {
     }
 
     @SuppressWarnings("MagicConstant")
-    public static Date getCorrespondingTimeOnThatWeekdayAfterToday(Date now, Date date, AlarmWeekday weekday) {
-        AlarmWeekday nowWeekday = getNowWeekday(now);
+    public static Date getCorrespondingTimeOnThatWeekdayAfterToday(Date now, Date date, Alarm.Weekday weekday) {
+        Alarm.Weekday nowWeekday = getNowWeekday(now);
         int dayDiffFromThatDayToToday = weekday.ordinal() - nowWeekday.ordinal();
         if (dayDiffFromThatDayToToday <= 0)
             dayDiffFromThatDayToToday += 7;
@@ -79,20 +77,20 @@ public class AlarmDateTimeUtility {
                 getThatTimeOnThisDay(now, date));
     }
 
-    public static AlarmWeekday getNowWeekday(Date now) {
+    public static Alarm.Weekday getNowWeekday(Date now) {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(now);
         return calendarWeekdayToAlarmWeekday(calendar.get(GregorianCalendar.DAY_OF_WEEK));
     }
 
     public static Date getNextRingingDateTimeFromRepeatAlarm(Date now, Alarm alarm) {
-        AlarmWeekday nowWeekday = getNowWeekday(now);
-        AlarmTimeOfDay alarmTime = alarm.getTimeOfDay();
+        Alarm.Weekday nowWeekday = getNowWeekday(now);
+        Alarm.TimeOfDay alarmTime = alarm.getTimeOfDay();
         if (alarm.getDayOfWeek(nowWeekday) && !hasCorrespondingTimeTodayPassed(now, alarmTime.toDate()))
             return getThatTimeOnThisDay(now, alarmTime.toDate());
-        AlarmWeekday nextRingingWeekday;
+        Alarm.Weekday nextRingingWeekday;
         for (int i = 1; i <= 7; ++i) {
-            nextRingingWeekday = AlarmWeekday.values()[(nowWeekday.ordinal() + i) % 7];
+            nextRingingWeekday = Alarm.Weekday.values()[(nowWeekday.ordinal() + i) % 7];
             if (alarm.getDayOfWeek(nextRingingWeekday))
                 return getThisManyDaysAfterThatTime(i,
                         getThatTimeOnThisDay(now, alarmTime.toDate()));

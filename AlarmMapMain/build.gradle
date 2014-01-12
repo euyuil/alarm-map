@@ -31,12 +31,14 @@ dependencies {
         mavenCentral()
     }
 
-	compile 'com.android.support:support-v4:13.0.+'
-	compile 'com.android.support:appcompat-v7:18.0.+'
+    compile 'com.intellij:annotations:12.0'
+
+    compile 'com.android.support:support-v4:19.0.1'
+    compile 'com.android.support:appcompat-v7:19.0.1'
 	compile 'com.google.android.gms:play-services:3.2.+'
+
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'de.timroes.android:EnhancedListView:0.1.2@aar'
-    compile 'com.intellij:annotations:12.+'
 
     testCompile 'junit:junit:4.11'
     testCompile 'com.squareup:fest-android:1.0.+'
@@ -52,7 +54,7 @@ dependencies {
 android {
 
     compileSdkVersion 19
-    buildToolsVersion "19"
+    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 8
