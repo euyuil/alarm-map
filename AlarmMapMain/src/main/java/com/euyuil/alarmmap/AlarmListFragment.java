@@ -13,8 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-import com.euyuil.alarmmap.model.Alarm;
-import com.euyuil.alarmmap.model.AlarmContract;
+import com.euyuil.alarmmap.provider.AlarmContract;
 
 import de.timroes.android.listview.EnhancedListView;
 
@@ -96,7 +95,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(getActivity(),
                 Uri.parse("content://com.euyuil.alarmmap.provider/alarm"),
-                AlarmContract.PROJECTION_ALARM_STAR, null, null, null);
+                AlarmContract.PROJECTION_STAR, null, null, null);
     }
 
     @Override

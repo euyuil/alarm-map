@@ -1,6 +1,5 @@
 package com.euyuil.alarmmap.test.utility;
 
-import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.test.RobolectricGradleTestRunner;
 import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 

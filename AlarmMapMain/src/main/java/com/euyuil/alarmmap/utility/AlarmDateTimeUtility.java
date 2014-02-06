@@ -1,7 +1,5 @@
 package com.euyuil.alarmmap.utility;
 
-import com.euyuil.alarmmap.model.Alarm;
-
 import java.util.Date;
 import java.util.GregorianCalendar;
 

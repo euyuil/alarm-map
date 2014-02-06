@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.service.AlarmService;
 
 import java.util.Date;

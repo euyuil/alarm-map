@@ -9,8 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.model.AlarmContract;
-import com.euyuil.alarmmap.model.MyDbHelper;
 import com.euyuil.alarmmap.utility.Babysitter;
 
 /**
@@ -47,11 +45,11 @@ public class AlarmProvider extends ContentProvider {
                 String.format("%s/#", AlarmContract.TABLE_NAME), ALARM_ID);
     }
 
-    private MyDbHelper helper;
+    private AppDbHelper helper;
 
     @Override
     public boolean onCreate() {
-        helper = new MyDbHelper(getContext());
+        helper = new AppDbHelper(getContext());
         return true;
     }
 

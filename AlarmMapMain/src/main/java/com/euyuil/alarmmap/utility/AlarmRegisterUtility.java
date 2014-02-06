@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.AlarmApplication;
 import com.euyuil.alarmmap.service.AlarmService;
 

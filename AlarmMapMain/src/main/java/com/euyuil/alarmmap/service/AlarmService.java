@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.euyuil.alarmmap.model.Alarm;
 import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
 

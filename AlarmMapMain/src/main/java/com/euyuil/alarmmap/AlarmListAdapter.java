@@ -15,8 +15,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.euyuil.alarmmap.model.Alarm;
-import com.euyuil.alarmmap.model.MyDbHelper;
+import com.euyuil.alarmmap.provider.AppDbHelper;
 
 /**
  * List view adapter for alarm entities.
@@ -46,7 +45,7 @@ public class AlarmListAdapter extends CursorAdapter {
         TextView dayOfWeek = (TextView) view.findViewById(R.id.day_of_week);
         CheckBox available = (CheckBox) view.findViewById(R.id.available);
 
-        final Alarm alarm = MyDbHelper.getObject(cursor, Alarm.class);
+        final Alarm alarm = AppDbHelper.getObject(cursor, Alarm.class);
 
         title.setText(alarm.getTitle());
         timeOfDay.setText(alarm.getTimeOfDay().toString());

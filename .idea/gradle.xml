@@ -5,6 +5,12 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/AlarmMapMain" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
     <option name="gradleVmOptions" value="-Xmx4096m -XX:MaxPermSize=1024m" />

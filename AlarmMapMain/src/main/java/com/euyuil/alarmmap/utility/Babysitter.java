@@ -1,8 +1,7 @@
 package com.euyuil.alarmmap.utility;
 
+import android.content.ContentValues;
 import android.net.Uri;
-
-import com.euyuil.alarmmap.model.Alarm;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -28,7 +27,7 @@ public class Babysitter {
         // TODO Finish this method.
     }
 
-    private static void takeCareOf(Alarm alarm) {
+    private static void takeCareOf(ContentValues alarm) {
 
         // TODO Is it enabled?
 
@@ -45,8 +44,8 @@ public class Babysitter {
         // Let's see if today's HH:mm has been reached.
         int nowHour = nowCalendar.get(GregorianCalendar.HOUR_OF_DAY);
         int nowMinute = nowCalendar.get(GregorianCalendar.MINUTE);
-        int alarmHour = alarm.getTimeOfDay().getHour();
-        int alarmMinute = alarm.getTimeOfDay().getMinute();
+        int alarmHour = AlarmUtils.getHourFromTimeOfDay(alarm);
+        int alarmMinute = AlarmUtils.getMinuteFromTimeOfDay(alarm);
         if ((nowHour < alarmHour) || (nowHour == alarmHour && nowMinute < alarmMinute)) {
             // HH:mm of today hasn't been reached.
         } else {
@@ -58,7 +57,7 @@ public class Babysitter {
         startTime = startCalendar.getTime();
 
         // Calculate the time for next ringing.
-        if (!alarm.getRepeat()) {
+        if (!AlarmUtils.getRepeat(alarm)) {
             // startTime is fairly enough.
             // Will ring at startTime.
             // TODO Set timer
@@ -71,8 +70,7 @@ public class Babysitter {
             calendar.setTime(startTime);
             calendar.add(GregorianCalendar.DATE, i);
             int calendarWeekday = calendar.get(GregorianCalendar.DAY_OF_WEEK);
-            Alarm.Weekday weekday = AlarmDateTimeUtility.calendarWeekdayToAlarmWeekday(calendarWeekday);
-            if (alarm.getDayOfWeek(weekday)) {
+            if (AlarmUtils.getDayOfWeek(alarm, calendarWeekday)) {
                 Date time = calendar.getTime();
                 // TODO Set timer
                 return;
