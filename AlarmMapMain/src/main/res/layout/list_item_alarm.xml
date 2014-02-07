@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:text="Everyday But Weekend"
                     android:background="@android:drawable/list_selector_background"
-                    android:id="@+id/day_of_week"
+                    android:id="@+id/days_of_week"
                     android:clickable="true" />
 
             </LinearLayout>
@@ -67,7 +67,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/available"
+        android:id="@+id/enabled"
         android:layout_gravity="center_vertical" />
 
 </LinearLayout>

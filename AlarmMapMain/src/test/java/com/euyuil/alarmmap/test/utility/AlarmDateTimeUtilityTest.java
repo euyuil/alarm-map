@@ -1,7 +1,6 @@
 package com.euyuil.alarmmap.test.utility;
 
 import com.euyuil.alarmmap.test.RobolectricGradleTestRunner;
-import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

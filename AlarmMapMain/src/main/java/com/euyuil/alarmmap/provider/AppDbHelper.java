@@ -11,6 +11,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class AppDbHelper extends SQLiteOpenHelper {
 
+    // Maybe it should be in another app-scope class.
+    public static final String APP_CONTENT_AUTHORITY = "com.euyuil.alarmmap.provider";
+
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "alarm.db";
 

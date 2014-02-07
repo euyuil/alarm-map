@@ -1,13 +1,39 @@
 package com.euyuil.alarmmap.utility;
 
 import android.content.ContentValues;
+import android.net.Uri;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by t-yul on 2/6/14.
  */
 public class AlarmUtils {
+
+    public static ContentValues createDefaultAlarm() {
+        ContentValues alarm = new ContentValues();
+        Date now = new Date();
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(now);
+        setTimeOfDay(alarm, calendar.get(GregorianCalendar.HOUR_OF_DAY),
+                calendar.get(GregorianCalendar.MINUTE));
+        return alarm;
+    }
+
+    public static Uri getUri(long id) {
+        return Uri.parse(String.format("content://%s/%s/%d",
+                AlarmContract.CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, id));
+    }
+
+    public static Uri getUri(ContentValues alarm) {
+        Long id = alarm.getAsLong(AlarmContract._ID);
+        if (id == null)
+            throw new IllegalArgumentException("The '_id' field of the alarm is null");
+        return getUri(id);
+    }
 
     /**
      * Gets the state of the alarm.
@@ -39,7 +65,7 @@ public class AlarmUtils {
      * @return Whether it uses time information or not.
      */
     public static boolean getUsesTime(ContentValues alarm) {
-        Boolean usesTime = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_TIME);
+        Boolean usesTime = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_TIME_OF_DAY);
         if (usesTime == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'usesTime' is null");
@@ -84,6 +110,15 @@ public class AlarmUtils {
         return minute;
     }
 
+    public static String getTimeOfDayAsString(ContentValues alarm) {
+        return String.format("%02d:%02d",
+                getHourFromTimeOfDay(alarm), getMinuteFromTimeOfDay(alarm));
+    }
+
+    public static void setTimeOfDay(ContentValues alarm, int hour, int minute) {
+        alarm.put(AlarmContract.COLUMN_NAME_TIME_OF_DAY, hour * 100 + minute);
+    }
+
     /**
      * Does the alarm use the location information?
      * If it does, the location condition should be satisfied
@@ -99,6 +134,12 @@ public class AlarmUtils {
         return usesLocation;
     }
 
+    public static String getFriendlyLocationAddress(ContentValues alarm) {
+        String locationAddress = alarm.getAsString(AlarmContract.COLUMN_NAME_LOCATION_ADDRESS);
+        // TODO Fallback strings.
+        return locationAddress;
+    }
+
     /**
      * Does the alarm repeat?
      * If it does, the alarm will be still enabled after it rang,
@@ -107,7 +148,7 @@ public class AlarmUtils {
      * @return Whether it repeats or not.
      */
     public static boolean getRepeat(ContentValues alarm) {
-        Boolean repeat = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_REPEAT);
+        Boolean repeat = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_REPEAT);
         if (repeat == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'repeat' is null");
@@ -123,7 +164,7 @@ public class AlarmUtils {
         if (!getRepeat(alarm))
             throw new UnsupportedOperationException("Cannot get 'daysOfWeek' of the alarm " +
                     "because it doesn't repeat");
-        Integer daysOfWeek = alarm.getAsInteger(AlarmContract.COLUMN_NAME_DAYS_OF_WEEK);
+        Integer daysOfWeek = alarm.getAsInteger(AlarmContract.COLUMN_NAME_REPEAT_DAYS_OF_WEEK);
         if (daysOfWeek == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'daysOfWeek' is null and it repeats");
@@ -137,10 +178,10 @@ public class AlarmUtils {
      * @return Whether the specified weekday of the repeated alarm is set or not.
      */
     public static boolean getDayOfWeek(ContentValues alarm, int weekday) {
-        if (weekday < 1 || weekday > 7)
+        if (weekday < GregorianCalendar.SUNDAY || weekday > GregorianCalendar.SATURDAY)
             throw new IllegalArgumentException("The 'weekday' parameter should be between 1 and 7");
         int daysOfWeek = getDaysOfWeek(alarm);
-        return (daysOfWeek & (1 << (weekday - 1))) != 0;
+        return (daysOfWeek & (1 << (weekday - GregorianCalendar.SUNDAY))) != 0;
     }
 
     public static enum AlarmState {

@@ -1,12 +1,15 @@
 package com.euyuil.alarmmap;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.euyuil.alarmmap.provider.AlarmContract;
 import com.euyuil.alarmmap.service.AlarmService;
+import com.euyuil.alarmmap.utility.AlarmUtils;
 
 import java.util.Date;
 
@@ -23,9 +26,8 @@ public class MainActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_alarm:
-                Alarm alarm = new Alarm();
-                alarm.setTimeOfDay(new Alarm.TimeOfDay(new Date()));
-                alarm.insert();
+                ContentValues alarm = AlarmUtils.createDefaultAlarm();
+                getContentResolver().insert(AlarmContract.TABLE_CONTENT_URI, alarm);
                 return true;
             case R.id.action_settings:
                 // TODO Settings

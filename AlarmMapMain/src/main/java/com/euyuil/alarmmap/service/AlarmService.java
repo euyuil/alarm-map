@@ -1,12 +1,18 @@
 package com.euyuil.alarmmap.service;
 
+import android.app.Activity;
 import android.app.Service;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.euyuil.alarmmap.utility.AlarmDateTimeUtility;
-import com.euyuil.alarmmap.utility.AlarmRegisterUtility;
+import com.euyuil.alarmmap.provider.AlarmContract;
+import com.euyuil.alarmmap.utility.AlarmUtils;
 
 import java.util.Date;
 
@@ -15,11 +21,16 @@ import java.util.Date;
  * @author EUYUIL
  * @version 0.0.20131022
  */
-
 public class AlarmService extends Service { // TODO Register content observers.
 
     public static final String TAG = "AlarmService";
     public static final String ACTION = "com.euyuil.alarmmap.service.AlarmService";
+
+    public static final int RESULT_OK = Activity.RESULT_OK;
+
+    public static final int RESULT_CUSTOM = 10000;
+    public static final int RESULT_URI_NOT_SPECIFIED = RESULT_CUSTOM + 1;
+    public static final int RESULT_ALARM_NOT_FOUND = RESULT_CUSTOM + 2;
 
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind");
@@ -44,43 +55,25 @@ public class AlarmService extends Service { // TODO Register content observers.
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Log.i(TAG, String.format("onStartCommand %s", intent.getData()));
+        Uri uri = intent.getData();
 
-        if (intent.getData() == null)
-            return 0;
+        Log.i(TAG, String.format("onStartCommand %s", uri));
 
-        Alarm alarm = Alarm.findByUri(intent.getData());
+        if (uri == null)
+            return RESULT_URI_NOT_SPECIFIED;
 
-        Date now = new Date();
-        Date nextRingingDate = AlarmDateTimeUtility.getNextRingingDateTime(now, alarm);
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null || !cursor.moveToFirst())
+            return RESULT_ALARM_NOT_FOUND;
 
-        if (AlarmDateTimeUtility
-                .clearDateButPreserveTime(nextRingingDate).getTime()
-                >= AlarmDateTimeUtility
-                .clearDateButPreserveTime(now).getTime()) {
+        ContentValues alarm = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, alarm);
 
-            // Time is up, then look for repeat flag.
+        // TODO Check whether the alarm should be rang or not.
 
-            if (alarm.getRepeat()) {
+        ringAlarm(alarm);
 
-                // Alarm was set to repeat, look for weekday settings.
-
-                if (alarm.getDayOfWeek(AlarmDateTimeUtility.getNowWeekday(now)))
-                    ring(alarm);
-
-            } else {
-                ring(alarm);
-            }
-
-        } else {
-
-            // Should calculate time diff if it's larger than 1 minute then use this.
-            // Otherwise just register alarm manager manually.
-            AlarmRegisterUtility.register(alarm);
-
-        }
-
-        return 0;
+        return RESULT_OK;
     }
 
     @Override
@@ -89,7 +82,8 @@ public class AlarmService extends Service { // TODO Register content observers.
         super.onDestroy();
     }
 
-    private void ring(Alarm alarm) {
-        Log.i(TAG, String.format("ring %s", alarm.toUri()));
+    private void ringAlarm(ContentValues alarm) {
+        Uri uri = AlarmUtils.getUri(alarm);
+        Log.i(TAG, String.format("ringAlarm %s", uri));
     }
 }

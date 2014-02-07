@@ -18,17 +18,7 @@ import com.euyuil.alarmmap.utility.Babysitter;
  */
 public class AlarmProvider extends ContentProvider {
 
-    public static final String CONTENT_AUTHORITY =
-            "com.euyuil.alarmmap.provider";
-
-    public static final String CONTENT_TYPE_DIR =
-            "vnd.android.cursor.dir/vnd.com.euyuil.alarmmap.provider.alarm";
-
-    public static final String CONTENT_TYPE_ITEM =
-            "vnd.android.cursor.item/vnd.com.euyuil.alarmmap.provider.alarm";
-
     private static final int ALARM = 1;
-
     private static final int ALARM_ID = 2;
 
     private static final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -37,11 +27,11 @@ public class AlarmProvider extends ContentProvider {
 
         // Gets all alarms.
         // Address - content://com.euyuil.alarmmap.provider/alarm
-        matcher.addURI(CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, ALARM);
+        matcher.addURI(AlarmContract.CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, ALARM);
 
         // Gets one alarm.
         // Address - content://com.euyuil.alarmmap.provider/alarm/1
-        matcher.addURI(CONTENT_AUTHORITY,
+        matcher.addURI(AlarmContract.CONTENT_AUTHORITY,
                 String.format("%s/#", AlarmContract.TABLE_NAME), ALARM_ID);
     }
 
@@ -117,9 +107,10 @@ public class AlarmProvider extends ContentProvider {
         if (id <= 0)
             return null;
 
-        Uri alarm = Uri.parse("content://com.euyuil.alarmmap.provider/" + id);
+        Uri alarm = Uri.parse(String.format("content://%s/%s/%d",
+                AlarmContract.CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, id));
 
-        Babysitter.takeCareOf(alarm);
+        Babysitter.takeCareOf(context, alarm);
 
         context.getContentResolver().notifyChange(uri, null);
         // context.getContentResolver().notifyChange(alarm, null); TODO Is it necessary? Or the above one is redundant?
@@ -156,7 +147,7 @@ public class AlarmProvider extends ContentProvider {
         int ret = db.delete(AlarmContract.TABLE_NAME, selection, selectionArgs);
 
         if (ret > 0) {
-            Babysitter.takeCareOf(uri);
+            Babysitter.takeCareOf(context, uri);
             context.getContentResolver().notifyChange(uri, null);
         }
 
@@ -191,7 +182,7 @@ public class AlarmProvider extends ContentProvider {
         int ret = db.update(AlarmContract.TABLE_NAME, values, selection, selectionArgs);
 
         if (ret > 0) {
-            Babysitter.takeCareOf(uri);
+            Babysitter.takeCareOf(context, uri);
             context.getContentResolver().notifyChange(uri, null);
         }
 
@@ -204,10 +195,10 @@ public class AlarmProvider extends ContentProvider {
         switch (matcher.match(uri)) {
 
             case ALARM:
-                return CONTENT_TYPE_DIR;
+                return AlarmContract.CONTENT_TYPE_DIR;
 
             case ALARM_ID:
-                return CONTENT_TYPE_ITEM;
+                return AlarmContract.CONTENT_TYPE_ITEM;
 
             default:
                 return null;

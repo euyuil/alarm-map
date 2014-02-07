@@ -1,7 +1,9 @@
 package com.euyuil.alarmmap;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
+import com.euyuil.alarmmap.utility.AlarmUtils;
 
 import de.timroes.android.listview.EnhancedListView;
 
@@ -45,10 +48,11 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Alarm alarm = Alarm.findById(id);
-                if (alarm != null)
-                    alarm.delete();
-                return true;
+                Uri uri = AlarmUtils.getUri(id);
+                int result = AlarmListFragment.this.getActivity()
+                        .getContentResolver().delete(uri, null, null);
+                assert result <= 1;
+                return result == 1;
             }
         });
 
@@ -56,16 +60,26 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
             @Override
             public EnhancedListView.Undoable onDismiss(EnhancedListView enhancedListView, int i) {
                 long id = listAdapter.getItemId(i);
-                final Alarm alarm = Alarm.findById(id);
-                if (alarm != null)
-                    alarm.delete();
-                return new EnhancedListView.Undoable() {
-                    @Override
-                    public void undo() {
-                        if (alarm != null)
-                            alarm.insert();
-                    }
-                };
+                Uri uri = AlarmUtils.getUri(id);
+                Cursor cursor = AlarmListFragment.this.getActivity()
+                        .getContentResolver().query(uri, null, null, null, null);
+                if (cursor == null || !cursor.moveToFirst())
+                    return null;
+                final ContentValues alarm = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, alarm);
+                int result = AlarmListFragment.this.getActivity()
+                        .getContentResolver().delete(uri, null, null);
+                assert result <= 1;
+                if (result == 1) {
+                    return new EnhancedListView.Undoable() {
+                        @Override
+                        public void undo() {
+                            AlarmListFragment.this.getActivity().getContentResolver()
+                                    .insert(AlarmContract.TABLE_CONTENT_URI, alarm);
+                        }
+                    };
+                }
+                return null;
             }
         });
 

@@ -1,10 +1,13 @@
 package com.euyuil.alarmmap;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +18,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.euyuil.alarmmap.provider.AppDbHelper;
+import com.euyuil.alarmmap.provider.AlarmContract;
+import com.euyuil.alarmmap.utility.AlarmUtils;
 
 /**
  * List view adapter for alarm entities.
@@ -42,31 +46,35 @@ public class AlarmListAdapter extends CursorAdapter {
         TextView title = (TextView) view.findViewById(R.id.title);
         TextView timeOfDay = (TextView) view.findViewById(R.id.time_of_day);
         TextView location = (TextView) view.findViewById(R.id.location);
-        TextView dayOfWeek = (TextView) view.findViewById(R.id.day_of_week);
-        CheckBox available = (CheckBox) view.findViewById(R.id.available);
+        TextView daysOfWeek = (TextView) view.findViewById(R.id.days_of_week);
+        CheckBox enabled = (CheckBox) view.findViewById(R.id.enabled);
 
-        final Alarm alarm = AppDbHelper.getObject(cursor, Alarm.class);
+        ContentValues alarm = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, alarm);
+        final Uri uri = AlarmUtils.getUri(alarm);
 
-        title.setText(alarm.getTitle());
-        timeOfDay.setText(alarm.getTimeOfDay().toString());
-        location.setText(alarm.getLocation().toString());
-        dayOfWeek.setText(alarm.getDayOfWeek().toString());
-        available.setChecked(alarm.getAvailable());
+        title.setText(alarm.getAsString(AlarmContract.COLUMN_NAME_TITLE));
+        timeOfDay.setText(AlarmUtils.getTimeOfDayAsString(alarm));
+        location.setText(AlarmUtils.getFriendlyLocationAddress(alarm));
+        daysOfWeek.setText(AlarmUtils.getDaysOfWeek(alarm)); // TODO
+        enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
 
         timeOfDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final View dialogView = inflater.inflate(R.layout.dialog_edit_alarm_time_of_day, null);
+                View dialogView = inflater.inflate(R.layout.dialog_edit_alarm_time_of_day, null);
+                assert dialogView != null;
+                final TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
                 new AlertDialog.Builder(context)
                         .setView(dialogView)
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show();
-                                TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
-                                alarm.setTimeOfDay(new Alarm.TimeOfDay(
-                                        timePicker.getCurrentHour(), timePicker.getCurrentMinute()));
-                                alarm.update();
+                                ContentValues newAlarmValues = new ContentValues();
+                                AlarmUtils.setTimeOfDay(newAlarmValues,
+                                        timePicker.getCurrentHour(), timePicker.getCurrentMinute());
+                                context.getContentResolver().update(uri, newAlarmValues, null, null);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -84,8 +92,7 @@ public class AlarmListAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, EditAlarmLocationActivity.class);
-                intent.putExtra("alarm", alarm.getId());
-                context.startActivity(intent);
+                context.startActivity(intent.setData(uri));
             }
         });
     }
