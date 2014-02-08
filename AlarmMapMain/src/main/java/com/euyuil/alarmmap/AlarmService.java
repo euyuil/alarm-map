@@ -1,4 +1,4 @@
-package com.euyuil.alarmmap.service;
+package com.euyuil.alarmmap;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -17,7 +17,7 @@ import android.util.Log;
 
 import com.euyuil.alarmmap.MainActivity;
 import com.euyuil.alarmmap.R;
-import com.euyuil.alarmmap.utility.AlarmUtils;
+import com.euyuil.alarmmap.AlarmUtils;
 
 import java.util.Date;
 
@@ -31,16 +31,16 @@ public class AlarmService extends Service { // TODO Register content observers.
     public static final String TAG = "AlarmService";
 
     public static final String ACTION_PREPARE_ALARM =
-            "com.euyuil.alarmmap.service.AlarmService.ACTION_PREPARE_ALARM";
+            "com.euyuil.alarmmap.AlarmService.ACTION_PREPARE_ALARM";
 
     public static final String ACTION_TRIGGER_TIME_OF_DAY =
-            "com.euyuil.alarmmap.service.AlarmService.ACTION_TRIGGER_TIME_OF_DAY";
+            "com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_TIME_OF_DAY";
 
     public static final String ACTION_TRIGGER_REPEAT =
-            "com.euyuil.alarmmap.service.AlarmService.ACTION_TRIGGER_REPEAT";
+            "com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_REPEAT";
 
     public static final String ACTION_TRIGGER_LOCATION =
-            "com.euyuil.alarmmap.service.AlarmService.ACTION_TRIGGER_LOCATION";
+            "com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_LOCATION";
 
     public static final int RESULT_OK = Activity.RESULT_OK;
 

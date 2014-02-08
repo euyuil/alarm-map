@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.service.AlarmService;
+import com.euyuil.alarmmap.AlarmService;
 
 /**
  * Provides alarm entities.

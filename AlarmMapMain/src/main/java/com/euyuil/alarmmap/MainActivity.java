@@ -8,10 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
-import com.euyuil.alarmmap.service.AlarmService;
-import com.euyuil.alarmmap.utility.AlarmUtils;
-
-import java.util.Date;
 
 public class MainActivity extends FragmentActivity {
 

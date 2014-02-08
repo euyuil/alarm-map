@@ -19,7 +19,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
-import com.euyuil.alarmmap.utility.AlarmUtils;
 
 /**
  * List view adapter for alarm entities.

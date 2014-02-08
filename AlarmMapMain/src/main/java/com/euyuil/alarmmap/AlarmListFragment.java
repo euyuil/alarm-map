@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
-import com.euyuil.alarmmap.utility.AlarmUtils;
 
 import de.timroes.android.listview.EnhancedListView;
 

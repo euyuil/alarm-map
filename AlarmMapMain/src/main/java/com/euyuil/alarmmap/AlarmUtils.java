@@ -1,4 +1,4 @@
-package com.euyuil.alarmmap.utility;
+package com.euyuil.alarmmap;
 
 import android.content.ContentValues;
 import android.net.Uri;
