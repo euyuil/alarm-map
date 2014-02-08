@@ -114,6 +114,11 @@ public class AlarmUtils {
         return usesTimeOfDay != 0;
     }
 
+    public static boolean getSatisfiesTimeOfDay(ContentValues alarm) {
+        // TODO
+        return false;
+    }
+
     /**
      * Gets the hour of the time of the day of the alarm.
      * @param alarm The alarm ContentValues object.
@@ -248,6 +253,11 @@ public class AlarmUtils {
         return usesLocation != 0;
     }
 
+    public static boolean getSatisfiesLocation(ContentValues alarm) {
+        // TODO
+        return false;
+    }
+
     /**
      * Gets the friendly location address of an alarm.
      * If the address was specified, it will be that address.
@@ -274,6 +284,11 @@ public class AlarmUtils {
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'usesRepeat' is null");
         return usesRepeat != 0;
+    }
+
+    public static boolean getSatisfiesRepeat(ContentValues alarm) {
+        // TODO
+        return false;
     }
 
     /**
