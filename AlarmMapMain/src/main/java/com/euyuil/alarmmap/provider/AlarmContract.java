@@ -32,6 +32,7 @@ public final class AlarmContract implements BaseColumns {
     public static final String COLUMN_NAME_DESCRIPTION = "description";
 
     public static final String COLUMN_NAME_STATE = "state";
+    public static final String COLUMN_NAME_LAST_WAKE_TIME = "lastWakeTime"; // TODO Invalidate when TZ changes.
 
     public static final String COLUMN_NAME_USES_REPEAT = "usesRepeat";
     public static final String COLUMN_NAME_REPEAT_DAYS_OF_WEEK = "repeatDaysOfWeek";
@@ -65,6 +66,7 @@ public final class AlarmContract implements BaseColumns {
                     COLUMN_NAME_DESCRIPTION + " TEXT, " +
 
                     COLUMN_NAME_STATE + " VARCHAR(15) NOT NULL DEFAULT 'enabled', " +
+                    COLUMN_NAME_LAST_WAKE_TIME + " LONG, " +
 
                     COLUMN_NAME_USES_REPEAT + " BOOLEAN NOT NULL DEFAULT 0, " +
                     COLUMN_NAME_REPEAT_DAYS_OF_WEEK + " INTEGER, " +
@@ -100,6 +102,7 @@ public final class AlarmContract implements BaseColumns {
             COLUMN_NAME_DESCRIPTION,
 
             COLUMN_NAME_STATE,
+            COLUMN_NAME_LAST_WAKE_TIME,
 
             COLUMN_NAME_USES_REPEAT,
             COLUMN_NAME_REPEAT_DAYS_OF_WEEK,

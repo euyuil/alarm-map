@@ -75,6 +75,31 @@ public class AlarmUtils {
     }
 
     /**
+     * Gets the time that the alarm was waked last time.
+     * @param alarm The alarm ContentValues object.
+     * @return The time, or null if not applied.
+     */
+    public static Date getLastWakeTime(ContentValues alarm) {
+        Long lastWakeTimeLong = alarm.getAsLong(AlarmContract.COLUMN_NAME_LAST_WAKE_TIME);
+        if (lastWakeTimeLong == null)
+            return null;
+        Date lastWakeTime = new Date(lastWakeTimeLong);
+        return lastWakeTime;
+    }
+
+    /**
+     * Sets the time that the alarm was waked.
+     * @param alarm The alarm ContentValues object.
+     * @param lastWakeTime The time that the alarm was waked.
+     */
+    public static void setLastWakeTime(ContentValues alarm, Date lastWakeTime) {
+        if (lastWakeTime == null)
+            alarm.putNull(AlarmContract.COLUMN_NAME_LAST_WAKE_TIME);
+        else
+            alarm.put(AlarmContract.COLUMN_NAME_LAST_WAKE_TIME, lastWakeTime.getTime());
+    }
+
+    /**
      * Does the alarm use the time information?
      * If it does, the time condition should be satisfied
      * in order to get the alarm rang.
