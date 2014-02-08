@@ -14,6 +14,10 @@ import java.util.GregorianCalendar;
  */
 public class AlarmUtils {
 
+    /**
+     * Creates a default alarm, whose time is set to now.
+     * @return A default alarm.
+     */
     public static ContentValues createDefaultAlarm() {
         ContentValues alarm = new ContentValues();
         Date now = new Date();
@@ -26,11 +30,21 @@ public class AlarmUtils {
         return alarm;
     }
 
+    /**
+     * Gets the URI of an alarm with ID given.
+     * @param id The alarm ID.
+     * @return The URI of the alarm.
+     */
     public static Uri getUri(long id) {
         return Uri.parse(String.format("content://%s/%s/%d",
                 AlarmContract.CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, id));
     }
 
+    /**
+     * Gets the URI of an alarm with its ContentValues.
+     * @param alarm The alarm ContentValues object.
+     * @return The URI of the alarm.
+     */
     public static Uri getUri(ContentValues alarm) {
         Long id = alarm.getAsLong(AlarmContract._ID);
         if (id == null)
@@ -113,13 +127,85 @@ public class AlarmUtils {
         return minute;
     }
 
+    /**
+     * Gets the time of day of the alarm as a string.
+     * @param alarm The alarm ContentValues object.
+     * @return The time of day of the alarm as a string.
+     */
     public static String getTimeOfDayAsString(ContentValues alarm) {
         return String.format("%02d:%02d",
                 getHourFromTimeOfDay(alarm), getMinuteFromTimeOfDay(alarm));
     }
 
+    /**
+     * Sets the time of day property of the alarm.
+     * @param alarm The alarm ContentValues object.
+     * @param hour The hour field of the time of day property.
+     * @param minute The minute field of the time of day property.
+     */
     public static void setTimeOfDay(ContentValues alarm, int hour, int minute) {
         alarm.put(AlarmContract.COLUMN_NAME_TIME_OF_DAY, hour * 100 + minute);
+    }
+
+    /**
+     * Gets the time when the alarm will trigger next time.
+     * @param alarm The alarm ContentValues object.
+     * @param now The time of now. If it's null, it will use system time.
+     * @return The time when the alarm will trigger. Or null if it won't trigger by time.
+     */
+    public static Date getTimeOfDayNextTrigger(ContentValues alarm, Date now) {
+
+        if (now == null)
+            now = new Date();
+
+        if (AlarmUtils.getState(alarm) == AlarmUtils.AlarmState.DISABLED ||
+                !AlarmUtils.getUsesTimeOfDay(alarm))
+            return null;
+
+        GregorianCalendar nowCalendar = new GregorianCalendar();
+        nowCalendar.setTime(now);
+
+        Date startTime;
+        GregorianCalendar startCalendar = new GregorianCalendar();
+        startCalendar.setTime(now);
+        startCalendar.set(GregorianCalendar.SECOND, 0);
+        startCalendar.set(GregorianCalendar.MILLISECOND, 0);
+
+        // Let's see if today's HH:mm has been reached.
+        int nowHour = nowCalendar.get(GregorianCalendar.HOUR_OF_DAY);
+        int nowMinute = nowCalendar.get(GregorianCalendar.MINUTE);
+        int alarmHour = AlarmUtils.getHourFromTimeOfDay(alarm);
+        int alarmMinute = AlarmUtils.getMinuteFromTimeOfDay(alarm);
+        if ((nowHour < alarmHour) || (nowHour == alarmHour && nowMinute < alarmMinute)) {
+            // HH:mm of today hasn't been reached.
+        } else {
+            // HH:mm of today has been reached, so start from tomorrow.
+            startCalendar.add(GregorianCalendar.DATE, 1);
+        }
+        startCalendar.set(GregorianCalendar.HOUR_OF_DAY, alarmHour);
+        startCalendar.set(GregorianCalendar.MINUTE, alarmMinute);
+        startTime = startCalendar.getTime();
+
+        // Calculate the time for next ringing.
+        if (!AlarmUtils.getUsesRepeat(alarm)) {
+            // startTime is fairly enough.
+            // Will ring at startTime.
+            return startTime;
+        }
+
+        // alarm.getUsesRepeat() == true
+        for (int i = 0; i < 7; ++i) {
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(startTime);
+            calendar.add(GregorianCalendar.DATE, i);
+            int calendarWeekday = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+            if (AlarmUtils.getDayOfWeek(alarm, calendarWeekday)) {
+                Date time = calendar.getTime();
+                return time;
+            }
+        }
+
+        throw new IllegalArgumentException("The alarm repeats but no weekday was set");
     }
 
     /**
@@ -137,6 +223,13 @@ public class AlarmUtils {
         return usesLocation != 0;
     }
 
+    /**
+     * Gets the friendly location address of an alarm.
+     * If the address was specified, it will be that address.
+     * Otherwise, it will be a coordinate on the earth.
+     * @param alarm The alarm ContentValues object.
+     * @return The friendly location address.
+     */
     public static String getFriendlyLocationAddress(ContentValues alarm) {
         String locationAddress = alarm.getAsString(AlarmContract.COLUMN_NAME_LOCATION_ADDRESS);
         // TODO Fallback strings.

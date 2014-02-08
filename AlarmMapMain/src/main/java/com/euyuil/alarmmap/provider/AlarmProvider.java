@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.euyuil.alarmmap.utility.Babysitter;
+import com.euyuil.alarmmap.service.AlarmService;
 
 /**
  * Provides alarm entities.
@@ -110,7 +110,7 @@ public class AlarmProvider extends ContentProvider {
         Uri alarm = Uri.parse(String.format("content://%s/%s/%d",
                 AlarmContract.CONTENT_AUTHORITY, AlarmContract.TABLE_NAME, id));
 
-        Babysitter.takeCareOf(context, alarm);
+        AlarmService.prepareAlarm(context, alarm);
 
         context.getContentResolver().notifyChange(uri, null);
         // context.getContentResolver().notifyChange(alarm, null); TODO Is it necessary? Or the above one is redundant?
@@ -147,7 +147,7 @@ public class AlarmProvider extends ContentProvider {
         int ret = db.delete(AlarmContract.TABLE_NAME, selection, selectionArgs);
 
         if (ret > 0) {
-            Babysitter.takeCareOf(context, uri);
+            AlarmService.prepareAlarm(context, uri);
             context.getContentResolver().notifyChange(uri, null);
         }
 
@@ -182,7 +182,7 @@ public class AlarmProvider extends ContentProvider {
         int ret = db.update(AlarmContract.TABLE_NAME, values, selection, selectionArgs);
 
         if (ret > 0) {
-            Babysitter.takeCareOf(context, uri);
+            AlarmService.prepareAlarm(context, uri);
             context.getContentResolver().notifyChange(uri, null);
         }
 
