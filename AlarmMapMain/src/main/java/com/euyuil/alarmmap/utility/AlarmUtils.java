@@ -9,7 +9,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * Created by t-yul on 2/6/14.
+ * @author EUYUIL
+ * @version 0.0.20140206
  */
 public class AlarmUtils {
 
@@ -20,6 +21,8 @@ public class AlarmUtils {
         calendar.setTime(now);
         setTimeOfDay(alarm, calendar.get(GregorianCalendar.HOUR_OF_DAY),
                 calendar.get(GregorianCalendar.MINUTE));
+        setState(alarm, AlarmState.ENABLED);
+        alarm.put(AlarmContract.COLUMN_NAME_USES_TIME_OF_DAY, true);
         return alarm;
     }
 
@@ -64,12 +67,12 @@ public class AlarmUtils {
      * @param alarm The alarm ContentValues object.
      * @return Whether it uses time information or not.
      */
-    public static boolean getUsesTime(ContentValues alarm) {
-        Boolean usesTime = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_TIME_OF_DAY);
-        if (usesTime == null)
+    public static boolean getUsesTimeOfDay(ContentValues alarm) {
+        Integer usesTimeOfDay = alarm.getAsInteger(AlarmContract.COLUMN_NAME_USES_TIME_OF_DAY);
+        if (usesTimeOfDay == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
-                    "because its 'usesTime' is null");
-        return usesTime;
+                    "because its 'usesTimeOfDay' is null");
+        return usesTimeOfDay != 0;
     }
 
     /**
@@ -78,7 +81,7 @@ public class AlarmUtils {
      * @return The hour of the time of the day.
      */
     public static int getHourFromTimeOfDay(ContentValues alarm) {
-        if (!getUsesTime(alarm))
+        if (!getUsesTimeOfDay(alarm))
             throw new UnsupportedOperationException("Cannot get 'timeOfDay' of the alarm " +
                     "because it doesn't use time information");
         Integer timeOfDay = alarm.getAsInteger(AlarmContract.COLUMN_NAME_TIME_OF_DAY);
@@ -97,7 +100,7 @@ public class AlarmUtils {
      * @return The minute of the hour of the time of the day.
      */
     public static int getMinuteFromTimeOfDay(ContentValues alarm) {
-        if (!getUsesTime(alarm))
+        if (!getUsesTimeOfDay(alarm))
             throw new UnsupportedOperationException("Cannot get 'timeOfDay' of the alarm " +
                     "because it doesn't use time information");
         Integer timeOfDay = alarm.getAsInteger(AlarmContract.COLUMN_NAME_TIME_OF_DAY);
@@ -127,11 +130,11 @@ public class AlarmUtils {
      * @return Whether it uses location information or not.
      */
     public static boolean getUsesLocation(ContentValues alarm) {
-        Boolean usesLocation = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_LOCATION);
+        Integer usesLocation = alarm.getAsInteger(AlarmContract.COLUMN_NAME_USES_LOCATION);
         if (usesLocation == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'usesLocation' is null");
-        return usesLocation;
+        return usesLocation != 0;
     }
 
     public static String getFriendlyLocationAddress(ContentValues alarm) {
@@ -147,12 +150,12 @@ public class AlarmUtils {
      * @param alarm The alarm ContentValues object.
      * @return Whether it repeats or not.
      */
-    public static boolean getRepeat(ContentValues alarm) {
-        Boolean repeat = alarm.getAsBoolean(AlarmContract.COLUMN_NAME_USES_REPEAT);
-        if (repeat == null)
+    public static boolean getUsesRepeat(ContentValues alarm) {
+        Integer usesRepeat = alarm.getAsInteger(AlarmContract.COLUMN_NAME_USES_REPEAT);
+        if (usesRepeat == null)
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
-                    "because its 'repeat' is null");
-        return repeat;
+                    "because its 'usesRepeat' is null");
+        return usesRepeat != 0;
     }
 
     /**
@@ -161,7 +164,7 @@ public class AlarmUtils {
      * @return The mask of the weekdays that the repeated alarm is triggered.
      */
     public static int getDaysOfWeek(ContentValues alarm) {
-        if (!getRepeat(alarm))
+        if (!getUsesRepeat(alarm))
             throw new UnsupportedOperationException("Cannot get 'daysOfWeek' of the alarm " +
                     "because it doesn't repeat");
         Integer daysOfWeek = alarm.getAsInteger(AlarmContract.COLUMN_NAME_REPEAT_DAYS_OF_WEEK);
@@ -169,6 +172,11 @@ public class AlarmUtils {
             throw new IllegalArgumentException("The ContentValues object is not a valid alarm " +
                     "because its 'daysOfWeek' is null and it repeats");
         return daysOfWeek;
+    }
+
+    public static String getFriendlyDaysOfWeek(ContentValues alarm) {
+        return AlarmUtils.getUsesRepeat(alarm) ?
+                String.valueOf(AlarmUtils.getDaysOfWeek(alarm)) : "N/A";
     }
 
     /**

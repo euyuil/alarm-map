@@ -10,8 +10,6 @@ import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.util.Log;
 
-import com.euyuil.alarmmap.AlarmApplication;
-import com.euyuil.alarmmap.provider.AlarmContract;
 import com.euyuil.alarmmap.service.AlarmService;
 
 import java.util.Date;
@@ -88,14 +86,14 @@ public class Babysitter {
         startTime = startCalendar.getTime();
 
         // Calculate the time for next ringing.
-        if (!AlarmUtils.getRepeat(alarm)) {
+        if (!AlarmUtils.getUsesRepeat(alarm)) {
             // startTime is fairly enough.
             // Will ring at startTime.
             registerAlarm(context, uri, startTime);
             return;
         }
 
-        // alarm.getRepeat() == true
+        // alarm.getUsesRepeat() == true
         for (int i = 0; i < 7; ++i) {
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.setTime(startTime);

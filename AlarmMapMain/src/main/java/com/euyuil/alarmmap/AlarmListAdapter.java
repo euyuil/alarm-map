@@ -56,7 +56,7 @@ public class AlarmListAdapter extends CursorAdapter {
         title.setText(alarm.getAsString(AlarmContract.COLUMN_NAME_TITLE));
         timeOfDay.setText(AlarmUtils.getTimeOfDayAsString(alarm));
         location.setText(AlarmUtils.getFriendlyLocationAddress(alarm));
-        daysOfWeek.setText(AlarmUtils.getDaysOfWeek(alarm)); // TODO
+        daysOfWeek.setText(AlarmUtils.getFriendlyDaysOfWeek(alarm)); // TODO
         enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
 
         timeOfDay.setOnClickListener(new OnClickListener() {
