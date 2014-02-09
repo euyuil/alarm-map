@@ -40,14 +40,6 @@ public class AlarmService extends Service { // TODO Register content observers.
     public static final String ACTION_TRIGGER_LOCATION =
             "com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_LOCATION";
 
-    public static final int RESULT_OK = Activity.RESULT_OK;
-
-    public static final int RESULT_ERROR = 10000;
-    public static final int RESULT_ACTION_NOT_SPECIFIED = RESULT_ERROR + 1;
-    public static final int RESULT_ACTION_NOT_FOUND = RESULT_ERROR + 2;
-    public static final int RESULT_ALARM_NOT_SPECIFIED = RESULT_ERROR + 3;
-    public static final int RESULT_ALARM_NOT_FOUND = RESULT_ERROR + 4;
-
     /**
      * Invoke this method internally in the provider, each time after the
      * alarm being inserted, updated, or deleted.
@@ -60,7 +52,8 @@ public class AlarmService extends Service { // TODO Register content observers.
      * @param uri The URI of the alarm, which should be taken care of.
      */
     public static void prepareAlarm(Context context, Uri uri) {
-        context.startService(new Intent(ACTION_PREPARE_ALARM, uri));
+        context.startService(new Intent(context, AlarmService.class)
+                .setAction(ACTION_PREPARE_ALARM).setData(uri));
     }
 
     public IBinder onBind(Intent intent) {
@@ -86,26 +79,36 @@ public class AlarmService extends Service { // TODO Register content observers.
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        super.onStartCommand(intent, flags, startId);
+
         String action = intent.getAction();
         Uri uri = intent.getData();
 
-        if (uri == null)
-            return RESULT_ALARM_NOT_SPECIFIED;
-        if (action == null)
-            return RESULT_ACTION_NOT_SPECIFIED;
+        do {
 
-        Log.i(TAG, String.format("onStartCommand %s %s", action, uri));
+            if (uri == null) {
+                Log.e(TAG, "onStartCommand: alarm URI not specified");
+                break;
+            }
+            if (action == null) {
+                Log.e(TAG, "onStartCommand: service action not specified");
+                break;
+            }
 
-        if (action.equals(ACTION_PREPARE_ALARM))
-            return prepareAlarm(uri);
-        if (action.equals(ACTION_TRIGGER_TIME_OF_DAY))
-            return triggerAlarmTimeOfDay(uri);
-        if (action.equals(ACTION_TRIGGER_REPEAT))
-            return triggerAlarmRepeat(uri);
-        if (action.equals(ACTION_TRIGGER_LOCATION))
-            return triggerAlarmLocation(uri);
+            Log.i(TAG, String.format("onStartCommand: %s %s", action, uri));
 
-        return RESULT_ACTION_NOT_FOUND;
+            if (action.equals(ACTION_PREPARE_ALARM))
+                prepareAlarm(uri);
+            else if (action.equals(ACTION_TRIGGER_TIME_OF_DAY))
+                triggerAlarmTimeOfDay(uri);
+            else if (action.equals(ACTION_TRIGGER_REPEAT))
+                triggerAlarmRepeat(uri);
+            else if (action.equals(ACTION_TRIGGER_LOCATION))
+                triggerAlarmLocation(uri);
+
+        } while (false);
+
+        return START_REDELIVER_INTENT; // TODO Is this appropriate?
     }
 
     @Override
@@ -114,7 +117,7 @@ public class AlarmService extends Service { // TODO Register content observers.
         super.onDestroy();
     }
 
-    public int prepareAlarm(Uri uri) {
+    public void prepareAlarm(Uri uri) {
         // TODO Check this query.
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
 
@@ -123,8 +126,6 @@ public class AlarmService extends Service { // TODO Register content observers.
 
         if (cursor.moveToFirst()) {
             do {
-
-                // TODO Check if single alarm registration succeeds.
 
                 ContentValues alarm = new ContentValues();
                 DatabaseUtils.cursorRowToContentValues(cursor, alarm);
@@ -143,17 +144,18 @@ public class AlarmService extends Service { // TODO Register content observers.
 
             } while (cursor.moveToNext());
         }
-        return RESULT_OK;
     }
 
-    private int registerTriggerAlarmTimeOfDay(Uri uri, Date nextRingingTime) {
+    private void registerTriggerAlarmTimeOfDay(Uri uri, Date nextRingingTime) {
 
         AlarmManager alarmManager = (AlarmManager)
                 getSystemService(ALARM_SERVICE);
 
+        Intent intent = new Intent(this, AlarmService.class)
+                .setAction(ACTION_TRIGGER_TIME_OF_DAY).setData(uri);
+
         PendingIntent pendingIntent = PendingIntent.getService(
-                this, 0, new Intent(ACTION_TRIGGER_TIME_OF_DAY, uri),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         alarmManager.cancel(pendingIntent);
 
@@ -164,31 +166,31 @@ public class AlarmService extends Service { // TODO Register content observers.
                 triggerAtMillis - System.currentTimeMillis()));
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-
-        return RESULT_OK;
     }
 
-    private int unregisterTriggerAlarmTimeOfDay(Uri uri) {
+    private void unregisterTriggerAlarmTimeOfDay(Uri uri) {
 
         AlarmManager alarmManager = (AlarmManager)
                 getSystemService(ALARM_SERVICE);
 
+        Intent intent = new Intent(this, AlarmService.class)
+                .setAction(ACTION_TRIGGER_TIME_OF_DAY).setData(uri);
+
         PendingIntent pendingIntent = PendingIntent.getService(
-                this, 0, new Intent(ACTION_TRIGGER_TIME_OF_DAY, uri),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Log.i(TAG, String.format("unregister %s", uri.toString()));
 
         alarmManager.cancel(pendingIntent);
-
-        return RESULT_OK;
     }
 
-    private int triggerAlarmTimeOfDay(Uri uri) {
+    private void triggerAlarmTimeOfDay(Uri uri) {
 
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor == null || !cursor.moveToFirst())
-            return RESULT_ALARM_NOT_FOUND;
+        if (cursor == null || !cursor.moveToFirst()) {
+            Log.e(TAG, String.format("triggerAlarmTimeOfDay: %s not found", uri));
+            return;
+        }
 
         ContentValues alarm = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(cursor, alarm);
@@ -196,16 +198,12 @@ public class AlarmService extends Service { // TODO Register content observers.
         // TODO Check whether the alarm should be rang or not.
 
         ringAlarm(alarm);
-
-        return RESULT_OK;
     }
 
-    private int triggerAlarmRepeat(Uri uri) {
-        return RESULT_ERROR;
+    private void triggerAlarmRepeat(Uri uri) {
     }
 
-    private int triggerAlarmLocation(Uri uri) {
-        return RESULT_ERROR;
+    private void triggerAlarmLocation(Uri uri) {
     }
 
     private void ringAlarm(ContentValues alarm) {

@@ -85,13 +85,6 @@
         <service
             android:name="com.euyuil.alarmmap.AlarmService"
             android:label="Alarm Service" >
-            <intent-filter>
-                <action android:name="com.euyuil.alarmmap.AlarmService.ACTION_PREPARE_ALARM" />
-                <action android:name="com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_TIME_OF_DAY" />
-                <action android:name="com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_REPEAT" />
-                <action android:name="com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_LOCATION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </service>
 
         <receiver
