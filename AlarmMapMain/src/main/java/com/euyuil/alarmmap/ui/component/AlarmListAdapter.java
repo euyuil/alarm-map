@@ -1,4 +1,4 @@
-package com.euyuil.alarmmap;
+package com.euyuil.alarmmap.ui.component;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -18,6 +18,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.ui.EditLocationActivity;
+import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
 
 /**
@@ -61,7 +64,7 @@ public class AlarmListAdapter extends CursorAdapter {
         timeOfDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                View dialogView = inflater.inflate(R.layout.dialog_edit_alarm_time_of_day, null);
+                View dialogView = inflater.inflate(R.layout.dialog_edit_time_of_day, null);
                 assert dialogView != null;
                 final TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
                 new AlertDialog.Builder(context)
@@ -90,7 +93,7 @@ public class AlarmListAdapter extends CursorAdapter {
         location.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, EditAlarmLocationActivity.class);
+                Intent intent = new Intent(context, EditLocationActivity.class);
                 context.startActivity(intent.setData(uri));
             }
         });

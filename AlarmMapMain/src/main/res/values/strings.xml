@@ -8,5 +8,8 @@
     <string name="title_activity_edit_alarm_location">Edit Alarm Location</string>
     <string name="title_activity_alarm_list">Alarms</string>
     <string name="title_activity_edit_alarm_time_of_day">Edit Time of Day</string>
+    <string name="title_activity_edit_alarm">EditAlarmActivity</string>
+    <string name="title_activity_awake_alarm">AwakeAlarmActivity</string>
+    <string name="title_activity_about">AboutActivity</string>
 
 </resources>

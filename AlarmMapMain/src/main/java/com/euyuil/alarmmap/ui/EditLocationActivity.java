@@ -1,19 +1,20 @@
-package com.euyuil.alarmmap;
+package com.euyuil.alarmmap.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.widget.Toast;
 
+import com.euyuil.alarmmap.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 
-public class EditAlarmLocationActivity extends FragmentActivity {
+public class EditLocationActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_alarm_location);
+        setContentView(R.layout.activity_edit_location);
         Toast.makeText(this, String.valueOf(getIntent().getLongExtra("alarm", 0)), Toast.LENGTH_SHORT).show();
     }
 

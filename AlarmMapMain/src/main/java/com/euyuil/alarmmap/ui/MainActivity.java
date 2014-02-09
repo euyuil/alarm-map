@@ -1,4 +1,4 @@
-package com.euyuil.alarmmap;
+package com.euyuil.alarmmap.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.euyuil.alarmmap.AlarmService;
+import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
 
 public class MainActivity extends FragmentActivity {

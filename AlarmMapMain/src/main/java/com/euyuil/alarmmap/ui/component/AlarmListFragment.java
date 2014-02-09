@@ -1,4 +1,4 @@
-package com.euyuil.alarmmap;
+package com.euyuil.alarmmap.ui.component;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -15,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.ui.EditLocationActivity;
+import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
 
 import de.timroes.android.listview.EnhancedListView;
@@ -36,7 +39,7 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), EditAlarmLocationActivity.class);
+                Intent intent = new Intent(getActivity(), EditLocationActivity.class);
                 intent.putExtra("alarm", id);
                 startActivity(intent);
             }

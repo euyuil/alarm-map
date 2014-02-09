@@ -5,7 +5,7 @@
     tools:context=".MainActivity">
 
         <fragment
-            android:name="com.euyuil.alarmmap.AlarmListFragment"
+            android:name="com.euyuil.alarmmap.ui.component.AlarmListFragment"
             android:id="@+id/alarm_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -15,9 +15,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.euyuil.alarmmap.MainActivity;
-import com.euyuil.alarmmap.R;
-import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.ui.MainActivity;
 
 import java.util.Date;
 
