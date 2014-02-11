@@ -29,7 +29,10 @@ public class MainActivity extends FragmentActivity {
                 getContentResolver().insert(AlarmContract.TABLE_CONTENT_URI, alarm);
                 return true;
             case R.id.action_settings:
-                // TODO Settings
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +20,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.ui.EditAlarmActivity;
 import com.euyuil.alarmmap.ui.EditLocationActivity;
 import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
@@ -30,10 +32,14 @@ import com.euyuil.alarmmap.provider.AlarmContract;
  */
 public class AlarmListAdapter extends CursorAdapter {
 
+    private static final String TAG = "AlarmListAdapter";
+
+    private final Context context;
     private final LayoutInflater inflater;
 
     public AlarmListAdapter(Context context) {
         super(context, null, 0);
+        this.context = context;
         inflater = LayoutInflater.from(context);
     }
 
@@ -44,6 +50,8 @@ public class AlarmListAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
+
+        View body = view.findViewById(R.id.item_body);
 
         TextView title = (TextView) view.findViewById(R.id.title);
         TextView timeOfDay = (TextView) view.findViewById(R.id.time_of_day);
@@ -60,6 +68,44 @@ public class AlarmListAdapter extends CursorAdapter {
         location.setText(AlarmUtils.getFriendlyLocationAddress(alarm));
         daysOfWeek.setText(AlarmUtils.getFriendlyDaysOfWeek(alarm)); // TODO
         enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
+
+        body.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Context context = view.getContext();
+                if (context != null)
+                    context.startActivity(
+                            new Intent(context, EditAlarmActivity.class).setData(uri));
+            }
+        });
+
+        enabled.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Context context = view.getContext();
+                if (context == null) {
+                    Log.e(TAG, "enabledOnClickListener: cannot get context");
+                    return;
+                }
+                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                if (cursor == null || !cursor.moveToFirst()) {
+                    Log.e(TAG, String.format("enabledOnClickListener: alarm %s not found", uri));
+                    return;
+                }
+                ContentValues theAlarm = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, theAlarm);
+                if (AlarmUtils.getState(theAlarm) == AlarmUtils.AlarmState.DISABLED) {
+                    AlarmUtils.setState(theAlarm, AlarmUtils.AlarmState.ENABLED);
+                } else {
+                    AlarmUtils.setState(theAlarm, AlarmUtils.AlarmState.DISABLED);
+                }
+                int result = context.getContentResolver().update(uri, theAlarm, null, null);
+                if (result != 1) {
+                    Log.e(TAG, String.format("enabledOnClickListener: set alarm %s state failed", uri));
+                    return;
+                }
+            }
+        });
 
         timeOfDay.setOnClickListener(new OnClickListener() {
             @Override

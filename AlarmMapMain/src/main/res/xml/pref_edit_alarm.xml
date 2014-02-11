@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="General" >
+
+        <CheckBoxPreference
+            android:key="enabled"
+            android:title="Enabled"
+            android:summary="Check this to enable this alarm"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="title"
+            android:title="Title"
+            android:summary="The title of the alarm"
+            android:defaultValue="Alarm Title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Time of Day" >
+
+        <CheckBoxPreference
+            android:key="uses_time_of_day"
+            android:title="Enabled"
+            android:summary="Check this to use time of day information"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="time_of_day"
+            android:title="Time of day" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Repeat" >
+
+        <CheckBoxPreference
+            android:key="uses_repeat"
+            android:title="Enabled"
+            android:summary="Check this to use weekday repeat"
+            android:defaultValue="true" />
+
+        <MultiSelectListPreference
+            android:key="repeat"
+            android:title="Repeat Weekdays"
+            android:entries="@array/pref_sync_frequency_titles"
+            android:entryValues="@array/pref_sync_frequency_values" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Location" >
+
+        <CheckBoxPreference
+            android:key="uses_location"
+            android:title="Enabled"
+            android:summary="Check this to use location information"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="location"
+            android:title="Location" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Ringtone" >
+
+        <RingtonePreference
+            android:key="ringtone"
+            android:title="Ringtone"
+            android:summary="Check this to enable this alarm"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="vibrate"
+            android:title="@string/pref_title_vibrate" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Parameters" >
+
+        <CheckBoxPreference
+            android:key="enabled3"
+            android:title="Enabled"
+            android:summary="Check this to enable this alarm"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

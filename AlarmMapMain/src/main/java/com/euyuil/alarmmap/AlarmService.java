@@ -1,10 +1,10 @@
 package com.euyuil.alarmmap;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.euyuil.alarmmap.ui.AwakeAlarmActivity;
 import com.euyuil.alarmmap.ui.MainActivity;
 
 import java.util.Date;
@@ -30,6 +31,12 @@ public class AlarmService extends Service { // TODO Register content observers.
 
     public static final String ACTION_PREPARE_ALARM =
             "com.euyuil.alarmmap.AlarmService.ACTION_PREPARE_ALARM";
+
+    public static final String ACTION_DISMISS_ALARM =
+            "com.euyuil.alarmmap.AlarmService.ACTION_DISMISS_ALARM";
+
+    public static final String ACTION_SNOOZE_ALARM =
+            "com.euyuil.alarmmap.AlarmService.ACTION_SNOOZE_ALARM";
 
     public static final String ACTION_TRIGGER_TIME_OF_DAY =
             "com.euyuil.alarmmap.AlarmService.ACTION_TRIGGER_TIME_OF_DAY";
@@ -86,12 +93,8 @@ public class AlarmService extends Service { // TODO Register content observers.
 
         do {
 
-            if (uri == null) {
-                Log.e(TAG, "onStartCommand: alarm URI not specified");
-                break;
-            }
-            if (action == null) {
-                Log.e(TAG, "onStartCommand: service action not specified");
+            if (uri == null || action == null) {
+                Log.i(TAG, "onStartCommand: started with no alarm URI or no action specified");
                 break;
             }
 
@@ -99,6 +102,10 @@ public class AlarmService extends Service { // TODO Register content observers.
 
             if (action.equals(ACTION_PREPARE_ALARM))
                 prepareAlarm(uri);
+            else if (action.equals(ACTION_DISMISS_ALARM))
+                dismissAlarm(uri);
+            else if (action.equals(ACTION_SNOOZE_ALARM))
+                snoozeAlarm(uri);
             else if (action.equals(ACTION_TRIGGER_TIME_OF_DAY))
                 triggerAlarmTimeOfDay(uri);
             else if (action.equals(ACTION_TRIGGER_REPEAT))
@@ -146,6 +153,14 @@ public class AlarmService extends Service { // TODO Register content observers.
         }
     }
 
+    public void dismissAlarm(Uri uri) {
+        Log.i(TAG, String.format("dismissAlarm: %s", uri));
+    }
+
+    public void snoozeAlarm(Uri uri) {
+
+    }
+
     private void registerTriggerAlarmTimeOfDay(Uri uri, Date nextRingingTime) {
 
         AlarmManager alarmManager = (AlarmManager)
@@ -161,9 +176,8 @@ public class AlarmService extends Service { // TODO Register content observers.
 
         long triggerAtMillis = nextRingingTime.getTime();
 
-        Log.i(TAG, String.format("register %s %d %d",
-                uri.toString(), triggerAtMillis,
-                triggerAtMillis - System.currentTimeMillis()));
+        Log.i(TAG, String.format("registerTriggerAlarmTimeOfDay: %s %d %d",
+                uri, triggerAtMillis, triggerAtMillis - System.currentTimeMillis()));
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
     }
@@ -179,7 +193,7 @@ public class AlarmService extends Service { // TODO Register content observers.
         PendingIntent pendingIntent = PendingIntent.getService(
                 this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Log.i(TAG, String.format("unregister %s", uri.toString()));
+        Log.i(TAG, String.format("unregisterTriggerAlarmTimeOfDay: %s", uri));
 
         alarmManager.cancel(pendingIntent);
     }
@@ -192,12 +206,14 @@ public class AlarmService extends Service { // TODO Register content observers.
             return;
         }
 
+        Log.i(TAG, String.format("triggerAlarmTimeOfDay: %s", uri));
+
         ContentValues alarm = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(cursor, alarm);
 
         // TODO Check whether the alarm should be rang or not.
 
-        ringAlarm(alarm);
+        wakeAlarm(alarm);
     }
 
     private void triggerAlarmRepeat(Uri uri) {
@@ -206,19 +222,27 @@ public class AlarmService extends Service { // TODO Register content observers.
     private void triggerAlarmLocation(Uri uri) {
     }
 
-    private void ringAlarm(ContentValues alarm) {
+    private void wakeAlarm(ContentValues alarm) {
 
         Uri uri = AlarmUtils.getUri(alarm);
-        Log.i(TAG, String.format("ringAlarm %s", uri));
+        Log.i(TAG, String.format("wakeAlarm %s", uri));
 
         PendingIntent contentIntent = PendingIntent.getActivity(
-                this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                this, 0, new Intent(this, AwakeAlarmActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent dismissIntent = new Intent(this, AlarmService.class)
+                .setAction(ACTION_DISMISS_ALARM).setData(uri);
+
+        PendingIntent deleteIntent = PendingIntent.getService(
+                this, 0, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("Alarm Map")
                 .setContentText(uri.toString())
-                .setContentIntent(contentIntent);
+                .setContentIntent(contentIntent)
+                .setDeleteIntent(deleteIntent);
 
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);

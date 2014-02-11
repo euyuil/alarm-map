@@ -1,66 +1,66 @@
 package com.euyuil.alarmmap.ui;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
+import android.preference.CheckBoxPreference;
+import android.preference.PreferenceActivity;
+import android.util.Log;
 
+import com.euyuil.alarmmap.AlarmUtils;
 import com.euyuil.alarmmap.R;
 
-public class EditAlarmActivity extends ActionBarActivity {
+public class EditAlarmActivity extends PreferenceActivity {
+
+    private static final String TAG = "EditAlarmActivity";
+
+    private CheckBoxPreference enabled;
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_alarm);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
+        getPreferenceManager().setSharedPreferencesName("_edit_alarm");
+        getPreferenceManager().setSharedPreferencesMode(MODE_PRIVATE);
+
+        addPreferencesFromResource(R.xml.pref_edit_alarm);
+
+        enabled = (CheckBoxPreference) findPreference("enabled");
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.edit_alarm, menu);
-        return true;
-    }
+    @SuppressWarnings("deprecation")
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+        Intent intent = getIntent();
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
+        if (intent == null) {
+            Log.e(TAG, "onPostCreate: cannot edit alarm because no intent specified");
+            return;
         }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_edit_alarm, container, false);
-            return rootView;
-        }
-    }
+        Uri uri = intent.getData();
 
+        if (uri == null) {
+            Log.e(TAG, "onPostCreate: cannot edit alarm because alarm URI not specified");
+            return;
+        }
+
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+
+        if (cursor == null || !cursor.moveToFirst()) {
+            Log.e(TAG, String.format("onPostCreate: cannot find alarm %s", uri));
+            return;
+        }
+
+        ContentValues alarm = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, alarm);
+
+        enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
+    }
 }
