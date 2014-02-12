@@ -1,7 +1,11 @@
 package com.euyuil.alarmmap;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.util.Log;
 
 import com.euyuil.alarmmap.provider.AlarmContract;
 
@@ -13,6 +17,8 @@ import java.util.GregorianCalendar;
  * @version 0.0.20140206
  */
 public class AlarmUtils {
+
+    private static String TAG = "AlarmUtils";
 
     /**
      * Creates a default alarm, whose time is set to now.
@@ -27,6 +33,21 @@ public class AlarmUtils {
                 calendar.get(GregorianCalendar.MINUTE));
         setState(alarm, AlarmState.ENABLED);
         alarm.put(AlarmContract.COLUMN_NAME_USES_TIME_OF_DAY, true);
+        return alarm;
+    }
+
+    public static ContentValues findOne(Context context, Uri uri) {
+        if (context == null) {
+            Log.e(TAG, "findOne: cannot get context");
+            return null;
+        }
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null || !cursor.moveToFirst()) {
+            Log.e(TAG, String.format("findOne: alarm %s not found", uri));
+            return null;
+        }
+        ContentValues alarm = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, alarm);
         return alarm;
     }
 
@@ -97,6 +118,15 @@ public class AlarmUtils {
             alarm.putNull(AlarmContract.COLUMN_NAME_LAST_WAKE_TIME);
         else
             alarm.put(AlarmContract.COLUMN_NAME_LAST_WAKE_TIME, lastWakeTime.getTime());
+    }
+
+    public static boolean getBoolean(ContentValues alarm, String key) {
+        Integer value = alarm.getAsInteger(key);
+        return (value != null) && (value != 0);
+    }
+
+    public static void setBoolean(ContentValues alarm, String key, boolean value) {
+        alarm.put(key, (Integer) (value ? 1 : 0));
     }
 
     /**

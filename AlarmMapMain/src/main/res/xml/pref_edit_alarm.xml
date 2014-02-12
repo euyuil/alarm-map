@@ -14,8 +14,7 @@
         <EditTextPreference
             android:key="title"
             android:title="Title"
-            android:summary="The title of the alarm"
-            android:defaultValue="Alarm Title" />
+            android:summary="The title of the alarm" />
 
     </PreferenceCategory>
 
@@ -23,14 +22,15 @@
         android:title="Time of Day" >
 
         <CheckBoxPreference
-            android:key="uses_time_of_day"
-            android:title="Enabled"
+            android:key="usesTimeOfDay"
+            android:title="Uses Time of Day"
             android:summary="Check this to use time of day information"
             android:defaultValue="true" />
 
         <Preference
-            android:key="time_of_day"
-            android:title="Time of day" />
+            android:key="timeOfDay"
+            android:title="Time of Day"
+            android:summary="09:00" />
 
     </PreferenceCategory>
 
@@ -38,16 +38,16 @@
         android:title="Repeat" >
 
         <CheckBoxPreference
-            android:key="uses_repeat"
-            android:title="Enabled"
+            android:key="usesRepeat"
+            android:title="Uses Repeat Weekdays"
             android:summary="Check this to use weekday repeat"
             android:defaultValue="true" />
 
         <MultiSelectListPreference
             android:key="repeat"
             android:title="Repeat Weekdays"
-            android:entries="@array/pref_sync_frequency_titles"
-            android:entryValues="@array/pref_sync_frequency_values" />
+            android:entries="@array/pref_weekday_titles"
+            android:entryValues="@array/pref_weekday_titles" />
 
     </PreferenceCategory>
 
@@ -55,8 +55,8 @@
         android:title="Location" >
 
         <CheckBoxPreference
-            android:key="uses_location"
-            android:title="Enabled"
+            android:key="usesLocation"
+            android:title="Uses Location"
             android:summary="Check this to use location information"
             android:defaultValue="true" />
 
@@ -73,7 +73,7 @@
             android:key="ringtone"
             android:title="Ringtone"
             android:summary="Check this to enable this alarm"
-            android:defaultValue="true" />
+            android:ringtoneType="alarm" />
 
         <CheckBoxPreference
             android:key="vibrate"
@@ -84,11 +84,10 @@
     <PreferenceCategory
         android:title="Parameters" >
 
-        <CheckBoxPreference
-            android:key="enabled3"
-            android:title="Enabled"
-            android:summary="Check this to enable this alarm"
-            android:defaultValue="true" />
+        <Preference
+            android:key="placeholder"
+            android:title="Performance Parameters"
+            android:summary="Advanced performance parameters" />
 
     </PreferenceCategory>
 

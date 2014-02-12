@@ -25,6 +25,8 @@ import com.euyuil.alarmmap.ui.EditLocationActivity;
 import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
 
+import org.apache.http.auth.AUTH;
+
 /**
  * List view adapter for alarm entities.
  * @author EUYUIL
@@ -64,7 +66,10 @@ public class AlarmListAdapter extends CursorAdapter {
         final Uri uri = AlarmUtils.getUri(alarm);
 
         title.setText(alarm.getAsString(AlarmContract.COLUMN_NAME_TITLE));
-        timeOfDay.setText(AlarmUtils.getTimeOfDayAsString(alarm));
+        if (AlarmUtils.getUsesTimeOfDay(alarm))
+            timeOfDay.setText(AlarmUtils.getTimeOfDayAsString(alarm));
+        else
+            timeOfDay.setText("N/A"); // TODO To resource
         location.setText(AlarmUtils.getFriendlyLocationAddress(alarm));
         daysOfWeek.setText(AlarmUtils.getFriendlyDaysOfWeek(alarm)); // TODO
         enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
@@ -87,13 +92,7 @@ public class AlarmListAdapter extends CursorAdapter {
                     Log.e(TAG, "enabledOnClickListener: cannot get context");
                     return;
                 }
-                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                if (cursor == null || !cursor.moveToFirst()) {
-                    Log.e(TAG, String.format("enabledOnClickListener: alarm %s not found", uri));
-                    return;
-                }
-                ContentValues theAlarm = new ContentValues();
-                DatabaseUtils.cursorRowToContentValues(cursor, theAlarm);
+                ContentValues theAlarm = AlarmUtils.findOne(view.getContext(), uri);
                 if (AlarmUtils.getState(theAlarm) == AlarmUtils.AlarmState.DISABLED) {
                     AlarmUtils.setState(theAlarm, AlarmUtils.AlarmState.ENABLED);
                 } else {
