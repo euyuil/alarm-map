@@ -15,7 +15,7 @@ public class EditLocationActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_location);
-        Toast.makeText(this, String.valueOf(getIntent().getLongExtra("alarm", 0)), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getIntent().getDataString(), Toast.LENGTH_SHORT).show();
     }
 
     private GoogleMap googleMap;

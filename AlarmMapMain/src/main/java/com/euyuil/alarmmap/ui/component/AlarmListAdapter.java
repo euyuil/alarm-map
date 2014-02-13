@@ -53,38 +53,27 @@ public class AlarmListAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
 
-        View body = view.findViewById(R.id.item_body);
-
-        TextView title = (TextView) view.findViewById(R.id.title);
-        TextView timeOfDay = (TextView) view.findViewById(R.id.time_of_day);
-        TextView location = (TextView) view.findViewById(R.id.location);
-        TextView daysOfWeek = (TextView) view.findViewById(R.id.days_of_week);
-        CheckBox enabled = (CheckBox) view.findViewById(R.id.enabled);
+        TextView titleTextView = (TextView) view.findViewById(R.id.title);
+        TextView summaryTextView = (TextView) view.findViewById(R.id.summary);
+        CheckBox enabledCheckBox = (CheckBox) view.findViewById(R.id.enabled);
 
         ContentValues alarm = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(cursor, alarm);
         final Uri uri = AlarmUtils.getUri(alarm);
 
-        title.setText(alarm.getAsString(AlarmContract.COLUMN_NAME_TITLE));
-        if (AlarmUtils.getUsesTimeOfDay(alarm))
-            timeOfDay.setText(AlarmUtils.getTimeOfDayAsString(alarm));
-        else
-            timeOfDay.setText("N/A"); // TODO To resource
-        location.setText(AlarmUtils.getFriendlyLocationAddress(alarm));
-        daysOfWeek.setText(AlarmUtils.getFriendlyDaysOfWeek(alarm)); // TODO
-        enabled.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
+        String title = alarm.getAsString(AlarmContract.COLUMN_NAME_TITLE);
+        boolean usesTimeOfDay = AlarmUtils.getUsesTimeOfDay(alarm);
 
-        body.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Context context = view.getContext();
-                if (context != null)
-                    context.startActivity(
-                            new Intent(context, EditAlarmActivity.class).setData(uri));
-            }
-        });
+        if (title == null || title.length() == 0) {
+            titleTextView.setText(usesTimeOfDay ? AlarmUtils.getTimeOfDayAsString(alarm) : "N/A");
+        } else {
+            titleTextView.setText(title);
+            summaryTextView.setText(usesTimeOfDay ? AlarmUtils.getTimeOfDayAsString(alarm) : "");
+        }
 
-        enabled.setOnClickListener(new OnClickListener() {
+        enabledCheckBox.setChecked(AlarmUtils.getState(alarm) != AlarmUtils.AlarmState.DISABLED);
+
+        enabledCheckBox.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 Context context = view.getContext();
@@ -103,43 +92,6 @@ public class AlarmListAdapter extends CursorAdapter {
                     Log.e(TAG, String.format("enabledOnClickListener: set alarm %s state failed", uri));
                     return;
                 }
-            }
-        });
-
-        timeOfDay.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View dialogView = inflater.inflate(R.layout.dialog_edit_time_of_day, null);
-                assert dialogView != null;
-                final TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
-                new AlertDialog.Builder(context)
-                        .setView(dialogView)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show();
-                                ContentValues newAlarmValues = new ContentValues();
-                                AlarmUtils.setTimeOfDay(newAlarmValues,
-                                        timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-                                context.getContentResolver().update(uri, newAlarmValues, null, null);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .create()
-                        .show();
-            }
-        });
-
-        location.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, EditLocationActivity.class);
-                context.startActivity(intent.setData(uri));
             }
         });
     }

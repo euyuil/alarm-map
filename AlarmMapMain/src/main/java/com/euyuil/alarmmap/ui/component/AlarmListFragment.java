@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.euyuil.alarmmap.AlarmUtils;
+import com.euyuil.alarmmap.ui.EditAlarmActivity;
 import com.euyuil.alarmmap.ui.EditLocationActivity;
 import com.euyuil.alarmmap.R;
 import com.euyuil.alarmmap.provider.AlarmContract;
@@ -39,9 +40,8 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), EditLocationActivity.class);
-                intent.putExtra("alarm", id);
-                startActivity(intent);
+                startActivity(new Intent(getActivity(), EditAlarmActivity.class)
+                        .setData(AlarmUtils.getUri(id)));
             }
         });
 
@@ -50,11 +50,12 @@ public class AlarmListFragment extends ListFragment implements LoaderCallbacks<C
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri uri = AlarmUtils.getUri(id);
-                int result = AlarmListFragment.this.getActivity()
-                        .getContentResolver().delete(uri, null, null);
-                assert result <= 1;
-                return result == 1;
+//                Uri uri = AlarmUtils.getUri(id);
+//                int result = AlarmListFragment.this.getActivity()
+//                        .getContentResolver().delete(uri, null, null);
+//                assert result <= 1;
+//                return result == 1;
+                return true;
             }
         });
 

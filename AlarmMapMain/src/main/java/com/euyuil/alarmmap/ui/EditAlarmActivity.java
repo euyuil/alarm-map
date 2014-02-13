@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.RingtonePreference;
@@ -41,7 +42,7 @@ public class EditAlarmActivity extends PreferenceActivity {
     private CheckBoxPreference usesTimeOfDay;
     private Preference timeOfDay;
     private CheckBoxPreference usesRepeat;
-    private Preference repeat;
+    private MultiSelectListPreference repeat;
     private CheckBoxPreference usesLocation;
     private Preference location;
     private RingtonePreference ringtone;
@@ -61,7 +62,7 @@ public class EditAlarmActivity extends PreferenceActivity {
         usesTimeOfDay = (CheckBoxPreference) findPreference("usesTimeOfDay");
         timeOfDay = findPreference("timeOfDay");
         usesRepeat = (CheckBoxPreference) findPreference("usesRepeat");
-        repeat = findPreference("repeat");
+        repeat = (MultiSelectListPreference) findPreference("repeat");
         usesLocation = (CheckBoxPreference) findPreference("usesLocation");
         location = findPreference("location");
         ringtone = (RingtonePreference) findPreference("ringtone");
@@ -118,6 +119,25 @@ public class EditAlarmActivity extends PreferenceActivity {
 
         timeOfDay.setSummary(AlarmUtils.getTimeOfDayAsString(initialAlarm));
         timeOfDay.setOnPreferenceClickListener(new OnTimeOfDayClickListener());
+
+        repeat.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                String value = o.toString();
+                int weekday = Integer.valueOf(value);
+                return true; // TODO Finish this method.
+            }
+        });
+
+        location.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(EditAlarmActivity.this,
+                        EditLocationActivity.class).setData(uri);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
     private void bindEditTextPreference(EditTextPreference preference) {

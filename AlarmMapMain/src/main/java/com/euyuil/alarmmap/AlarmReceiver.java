@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Created by Yue on 13-10-29.
+ * @author EUYUIL
+ * @version 0.0.20131029
  */
 
 public class AlarmReceiver extends BroadcastReceiver {

@@ -13,7 +13,8 @@ import android.text.TextUtils;
 import static android.preference.Preference.OnPreferenceChangeListener;
 
 /**
- * Created by t-yul on 2/12/14.
+ * @author EUYUIL
+ * @version 0.0.20140212
  */
 public class PreferenceUtils {
 
